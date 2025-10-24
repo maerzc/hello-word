@@ -8,21 +8,80 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from config.settings import settings
 from typing import List, Dict, Any
 import logging
+import json
+import re
 
 logger = logging.getLogger(__name__)
+
+
+class MockLLM:
+    """Mock-LLM für Demo-Zwecke ohne Ollama"""
+
+    def invoke(self, messages):
+        """Generiert Mock-Antworten basierend auf dem Kontext"""
+        user_msg = ""
+        for msg in messages:
+            if isinstance(msg, HumanMessage):
+                user_msg = msg.content
+                break
+
+        # Klassifikation erkennen
+        if "klassifiziere" in user_msg.lower() or "absender:" in user_msg.lower():
+            if "angebot" in user_msg.lower() or "hosting" in user_msg.lower():
+                return type('obj', (object,), {'content': json.dumps({
+                    "classification": "quote_request",
+                    "confidence": 0.95,
+                    "reasoning": "E-Mail enthält Angebotsanfrage für Cloud-Hosting"
+                })})
+            elif "rechnung" in user_msg.lower() or "re-" in user_msg.lower():
+                return type('obj', (object,), {'content': json.dumps({
+                    "classification": "invoice",
+                    "confidence": 0.98,
+                    "reasoning": "E-Mail enthält Rechnungsinformationen"
+                })})
+            elif "login" in user_msg.lower() or "problem" in user_msg.lower() or "hilfe" in user_msg.lower():
+                return type('obj', (object,), {'content': json.dumps({
+                    "classification": "support",
+                    "confidence": 0.92,
+                    "reasoning": "E-Mail ist eine Support-Anfrage"
+                })})
+            elif "newsletter" in user_msg.lower() or "trends" in user_msg.lower():
+                return type('obj', (object,), {'content': json.dumps({
+                    "classification": "newsletter",
+                    "confidence": 0.96,
+                    "reasoning": "E-Mail ist ein Newsletter"
+                })})
+            elif "termin" in user_msg.lower() or "meeting" in user_msg.lower():
+                return type('obj', (object,), {'content': json.dumps({
+                    "classification": "appointment",
+                    "confidence": 0.94,
+                    "reasoning": "E-Mail ist eine Terminanfrage"
+                })})
+
+        # Generische freundliche Antwort
+        return type('obj', (object,), {'content':
+            "Vielen Dank für Ihre Anfrage! Ich habe Ihre E-Mail analysiert und die relevanten Informationen verarbeitet. "
+            "Bei weiteren Fragen stehe ich Ihnen gerne zur Verfügung."
+        })
 
 
 class LLMClient:
     """Zentraler LLM-Client für das Agentensystem"""
 
     def __init__(self):
-        """Initialisiert den Ollama-Client"""
-        self.llm = ChatOllama(
-            base_url=settings.ollama_base_url,
-            model=settings.ollama_model,
-            temperature=0.7,
-        )
-        logger.info(f"LLM Client initialisiert: {settings.ollama_model} @ {settings.ollama_base_url}")
+        """Initialisiert den Ollama-Client mit Fallback auf Mock"""
+        self.use_mock = False
+        try:
+            self.llm = ChatOllama(
+                base_url=settings.ollama_base_url,
+                model=settings.ollama_model,
+                temperature=0.7,
+            )
+            logger.info(f"LLM Client initialisiert: {settings.ollama_model} @ {settings.ollama_base_url}")
+        except Exception as e:
+            logger.warning(f"Ollama nicht verfügbar, verwende Mock-LLM: {str(e)}")
+            self.llm = MockLLM()
+            self.use_mock = True
 
     def invoke(self, system_prompt: str, user_message: str, context: Dict[str, Any] = None) -> str:
         """
