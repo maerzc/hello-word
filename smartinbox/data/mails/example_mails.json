@@ -1,0 +1,47 @@
+[
+  {
+    "id": "mail_001",
+    "type": "quote_request",
+    "sender": "anna.mueller@techfirma.de",
+    "subject": "Angebotsanfrage Cloud-Hosting für 50 Mitarbeiter",
+    "body": "Sehr geehrte Damen und Herren,\n\nwir sind ein mittelständisches IT-Unternehmen mit derzeit 50 Mitarbeitern und suchen nach einer zuverlässigen Cloud-Hosting-Lösung für unsere interne Infrastruktur.\n\nUnsere Anforderungen:\n- Speicherplatz: mindestens 500GB, besser 1TB\n- Hochverfügbarkeit: 99.9% Uptime-Garantie\n- Backup: tägliche automatische Backups\n- Support: Deutschsprachiger Support während Geschäftszeiten\n- Skalierbarkeit: Möglichkeit zur Erweiterung\n\nUnser Budget liegt bei ca. 5.000 EUR pro Jahr. Wir würden gerne ab März 2025 starten.\n\nKönnten Sie uns bitte ein detailliertes Angebot mit verschiedenen Paketen zusenden? Auch Informationen zu Vertragslaufzeiten und Kündigungsfristen wären hilfreich.\n\nFür Rückfragen stehe ich gerne zur Verfügung.\n\nMit freundlichen Grüßen\nAnna Müller\nIT-Leitung\nTechFirma GmbH",
+    "received_at": "2025-01-20T09:15:00Z",
+    "attachments": []
+  },
+  {
+    "id": "mail_002",
+    "type": "invoice",
+    "sender": "buchhaltung@supplier-solutions.com",
+    "subject": "Rechnung RE-2025-00342 - Dienstleistungen Januar",
+    "body": "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie unsere Rechnung für die im Januar 2025 erbrachten Beratungsleistungen.\n\n═══════════════════════════════\nRECHNUNG RE-2025-00342\n═══════════════════════════════\n\nRechnungssteller:\nSupplier Solutions GmbH\nMusterstraße 42\n10115 Berlin\nUSt-IdNr.: DE987654321\n\nRechnungsempfänger:\nIhr Unternehmen\n\nRechnungsdatum: 20.01.2025\nLeistungszeitraum: 01.01.2025 - 31.01.2025\n\nPositionen:\n1. Beratungspaket 10h à 95,00 EUR = 950,00 EUR\n2. Projektmanagement 5h à 85,00 EUR = 425,00 EUR\n\nNettobetrag: 1.375,00 EUR\nMwSt. 19%: 261,25 EUR\n─────────────────────────────\nGesamtbetrag: 1.636,25 EUR\n\nZahlungsziel: 14 Tage (fällig bis 03.02.2025)\nBankverbindung:\nIBAN: DE89 1234 5678 9012 3456 78\nBIC: ABCDEFGH\n\nBei Rückfragen stehen wir Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen\nBuchhaltung\nSupplier Solutions GmbH",
+    "received_at": "2025-01-20T10:30:00Z",
+    "attachments": ["rechnung_re-2025-00342.pdf"]
+  },
+  {
+    "id": "mail_003",
+    "type": "support",
+    "sender": "max.schmidt@kunde-ag.de",
+    "subject": "DRINGEND: Login-Problem - Kann nicht auf Dashboard zugreifen",
+    "body": "Hallo Support-Team,\n\nich habe seit heute Morgen massive Probleme beim Login!\n\nSituation:\n- Ich versuche mich mit meiner E-Mail max.schmidt@kunde-ag.de anzumelden\n- Passwort ist korrekt (habe es 3x geprüft, Caps Lock ist aus)\n- Bekomme immer die Fehlermeldung: \"Ungültige Anmeldedaten\"\n- Habe gestern Abend noch problemlos Zugriff gehabt\n- Browser: Chrome (aktuellste Version)\n- Cache habe ich bereits geleert\n\nDas ist sehr dringend, da ich für eine wichtige Präsentation um 14 Uhr Daten aus dem Dashboard benötige!\n\nKann mir jemand schnell helfen? Vielleicht wurde mein Account gesperrt oder es gibt ein technisches Problem?\n\nIch habe auch versucht, das Passwort zurückzusetzen, aber die E-Mail kommt nicht an (auch nicht im Spam).\n\nBitte um schnellstmögliche Rückmeldung!\n\nViele Grüße\nMax Schmidt",
+    "received_at": "2025-01-20T11:45:00Z",
+    "attachments": ["screenshot_error.png"]
+  },
+  {
+    "id": "mail_004",
+    "type": "newsletter",
+    "sender": "newsletter@ki-trends.com",
+    "subject": "🤖 KI-Trends Newsletter - Januar 2025: Agenten-Revolution & LangGraph Updates",
+    "body": "KI-TRENDS NEWSLETTER 📰\nJanuar 2025 - Ausgabe #42\n\n════════════════════════════════\n\nHallo KI-Enthusiast!\n\nWillkommen zur ersten Ausgabe 2025! Diesen Monat dreht sich alles um KI-Agenten und die neuesten Entwicklungen in der Automatisierung.\n\n🔥 TOP-THEMEN DIESE WOCHE:\n\n1. 🤖 KI-Agenten revolutionieren die Geschäftsprozesse\n   Die neueste Studie von Gartner zeigt: 67% der Unternehmen planen den Einsatz von KI-Agenten bis Ende 2025. Besonders im Customer Service und in der Datenanalyse werden autonome Agenten zum Game-Changer.\n   → Artikel lesen: ki-trends.com/agenten-2025\n\n2. 🚀 LangGraph 0.3 Release - Neue Features für Entwickler\n   LangChain hat LangGraph 0.3 veröffentlicht mit verbesserten State-Management-Funktionen, einfacherer Debugging-Unterstützung und nativer Streaming-Unterstützung.\n   → Dokumentation: langchain.com/langgraph\n\n3. ☁️ Cloud-Native AI wird zum Standard\n   Immer mehr Unternehmen setzen auf Cloud-Native-Architekturen für ihre KI-Workloads. Warum das die Zukunft ist und welche Vorteile es bietet.\n\n4. 💡 Praxisbeispiel: Wie TechCorp 40% Kosten durch Agenten-Automatisierung sparte\n   Eine inspirierende Fallstudie über die erfolgreiche Implementierung eines Multi-Agenten-Systems.\n\n════════════════════════════════\n\n📅 KOMMENDE EVENTS:\n\n• 25.01.2025, 14:00 Uhr: Webinar \"KI-Agenten in der Praxis\"\n  Kostenlose Anmeldung (begrenzte Plätze!)\n  → Jetzt anmelden: ki-trends.com/webinar\n\n• 15.02.2025: KI-Konferenz Berlin\n  Early-Bird-Tickets bis 31.01. (-30%)\n  → Tickets: konferenz.ki-trends.com\n\n════════════════════════════════\n\n💼 JOBANGEBOTE:\n- Senior AI Engineer @ DataCorp\n- Machine Learning Architect @ CloudSolutions\n\n════════════════════════════════\n\nViel Spaß beim Lesen!\n\nIhr KI-Trends Team\n\n──────────────────────────────\nAbmelden | Einstellungen | Kontakt\nki-trends.com",
+    "received_at": "2025-01-20T08:00:00Z",
+    "attachments": []
+  },
+  {
+    "id": "mail_005",
+    "type": "appointment",
+    "sender": "julia.wagner@innovations-gmbh.de",
+    "subject": "Terminanfrage: Beratungsgespräch KI-Agentensysteme",
+    "body": "Guten Tag,\n\nmein Name ist Julia Wagner und ich bin Geschäftsführerin der Innovations GmbH, einem Beratungsunternehmen im Bereich Digitalisierung.\n\nWir interessieren uns sehr für die Einführung eines KI-Agentensystems zur Automatisierung unserer E-Mail-Kommunikation und möchten gerne ein unverbindliches Beratungsgespräch mit Ihnen vereinbaren.\n\nThemen, die wir besprechen möchten:\n- Einsatzmöglichkeiten von KI-Agenten in unserem Use Case\n- Technische Anforderungen und Integration\n- Kosten und ROI-Betrachtung\n- Implementierungszeitraum\n\nZeitliche Präferenzen:\n- Nächste Woche: Dienstag (23.01.) oder Donnerstag (25.01.)\n- Bevorzugt vormittags zwischen 9-12 Uhr\n- Dauer: ca. 60 Minuten\n- Format: Online-Meeting (Teams/Zoom) oder vor Ort in München\n\nTeilnehmer von unserer Seite:\n- Julia Wagner (Geschäftsführerin)\n- Thomas Klein (IT-Leiter)\n\nWäre einer dieser Termine für Sie möglich? Falls nicht, können Sie uns gerne alternative Vorschläge unterbreiten.\n\nWir freuen uns auf den Austausch mit Ihnen!\n\nMit freundlichen Grüßen\n\nJulia Wagner\nGeschäftsführerin\nInnovations GmbH\nTel: +49 89 1234567\nE-Mail: julia.wagner@innovations-gmbh.de",
+    "received_at": "2025-01-20T13:20:00Z",
+    "attachments": []
+  }
+]
