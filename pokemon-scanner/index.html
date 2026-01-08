@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PokéScanner">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffcb05">
+    <meta name="description" content="Scanne Pokémon-Karten und erfahre ihren aktuellen Marktwert">
+
+    <title>Pokémon Karten Scanner</title>
+
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons für iOS -->
+    <link rel="apple-touch-icon" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+
+    <!-- iOS Splash Screens -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="stylesheet" href="style.css">
+    <!-- Tesseract.js für OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>🎴 Pokémon Karten Scanner</h1>
+            <p class="subtitle">Scanne deine Karte und erfahre den Wert!</p>
+        </header>
+
+        <main>
+            <!-- Kamera-Ansicht -->
+            <div class="camera-section">
+                <div class="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="scan-overlay">
+                        <div class="scan-frame"></div>
+                    </div>
+                </div>
+                <div class="camera-controls">
+                    <button id="captureBtn" class="btn btn-capture">
+                        📸 Karte scannen
+                    </button>
+                    <button id="switchCameraBtn" class="btn btn-secondary">
+                        🔄 Kamera wechseln
+                    </button>
+                </div>
+            </div>
+
+            <!-- Verstecktes Canvas für Bildverarbeitung -->
+            <canvas id="canvas" style="display: none;"></canvas>
+
+            <!-- Lade-Anzeige -->
+            <div id="loadingSection" class="loading-section hidden">
+                <div class="spinner"></div>
+                <p id="loadingText">Analysiere Karte...</p>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Ergebnis-Anzeige -->
+            <div id="resultSection" class="result-section hidden">
+                <div class="result-card">
+                    <div class="result-header">
+                        <h2 id="cardName">-</h2>
+                        <span id="cardSet" class="card-set">-</span>
+                    </div>
+
+                    <div id="cardImageContainer" class="card-image-container">
+                        <img id="cardImage" src="" alt="Pokémon Karte">
+                    </div>
+
+                    <div class="price-section">
+                        <h3>💰 Geschätzter Wert</h3>
+                        <div class="price-grid">
+                            <div class="price-item">
+                                <span class="price-label">Normal</span>
+                                <span id="priceNormal" class="price-value">-</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">Holofoil</span>
+                                <span id="priceHolo" class="price-value">-</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">Reverse Holo</span>
+                                <span id="priceReverse" class="price-value">-</span>
+                            </div>
+                            <div class="price-item highlight">
+                                <span class="price-label">1st Edition</span>
+                                <span id="priceFirst" class="price-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Seltenheit:</span>
+                            <span id="cardRarity" class="detail-value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Kartennummer:</span>
+                            <span id="cardNumber" class="detail-value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Künstler:</span>
+                            <span id="cardArtist" class="detail-value">-</span>
+                        </div>
+                    </div>
+
+                    <button id="newScanBtn" class="btn btn-primary">
+                        🔍 Neue Karte scannen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manuelle Suche -->
+            <div class="manual-search">
+                <h3>Oder suche manuell:</h3>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="z.B. Glurak, Pikachu, Mewtu...">
+                    <button id="searchBtn" class="btn btn-search">🔍</button>
+                </div>
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Preise von Pokemon TCG API • Angaben ohne Gewähr</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Service Worker registrieren
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registriert:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker Fehler:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

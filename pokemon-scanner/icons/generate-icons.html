@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator - Pokémon Scanner</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 { color: #ffcb05; }
+        .icons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .icon-item {
+            background: #2a2a4a;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .icon-item canvas {
+            display: block;
+            margin: 0 auto 0.5rem;
+        }
+        .icon-item a {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #ffcb05;
+            color: #1a1a2e;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .icon-item a:hover {
+            background: #e6b800;
+        }
+        .instructions {
+            background: #2a2a4a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 2rem auto;
+            text-align: left;
+        }
+        .instructions ol {
+            margin-left: 1.5rem;
+        }
+        .instructions li {
+            margin: 0.5rem 0;
+        }
+        #generateBtn {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: #ffcb05;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #generateBtn:hover {
+            background: #e6b800;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎴 Icon Generator</h1>
+    <p>Generiere alle App-Icons für den Pokémon Karten Scanner</p>
+
+    <button id="generateBtn">Icons generieren</button>
+
+    <div class="instructions">
+        <h3>Anleitung:</h3>
+        <ol>
+            <li>Klicke auf "Icons generieren"</li>
+            <li>Lade jedes Icon einzeln herunter (Rechtsklick → "Bild speichern unter")</li>
+            <li>Speichere sie im <code>icons/</code> Ordner mit dem richtigen Namen</li>
+            <li>Oder klicke auf den Download-Link unter jedem Icon</li>
+        </ol>
+    </div>
+
+    <div id="iconsGrid" class="icons-grid"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function drawIcon(ctx, size) {
+            const scale = size / 512;
+
+            // Background
+            const bgGrad = ctx.createLinearGradient(0, 0, size, size);
+            bgGrad.addColorStop(0, '#1a1a2e');
+            bgGrad.addColorStop(1, '#0f0f23');
+
+            // Rounded rect background
+            ctx.beginPath();
+            const radius = 100 * scale;
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fillStyle = bgGrad;
+            ctx.fill();
+
+            // Card shape
+            const cardX = 106 * scale;
+            const cardY = 56 * scale;
+            const cardW = 300 * scale;
+            const cardH = 400 * scale;
+            const cardRadius = 20 * scale;
+
+            ctx.beginPath();
+            ctx.roundRect(cardX, cardY, cardW, cardH, cardRadius);
+            ctx.fillStyle = '#2a2a4a';
+            ctx.fill();
+
+            const goldGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+            goldGrad.addColorStop(0, '#ffcb05');
+            goldGrad.addColorStop(1, '#e6b800');
+            ctx.strokeStyle = goldGrad;
+            ctx.lineWidth = 6 * scale;
+            ctx.stroke();
+
+            // Pokeball
+            const ballX = 256 * scale;
+            const ballY = 230 * scale;
+            const ballR = 100 * scale;
+
+            // Top half (red)
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballR, Math.PI, 0);
+            ctx.fillStyle = '#cc0000';
+            ctx.fill();
+
+            // Bottom half (white)
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballR, 0, Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            // Middle line
+            ctx.fillStyle = '#222';
+            ctx.fillRect(ballX - ballR, ballY - 10 * scale, ballR * 2, 20 * scale);
+
+            // Center circle
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 30 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 8 * scale;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 15 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = '#222';
+            ctx.fill();
+
+            // Scanner lines
+            ctx.strokeStyle = '#ffcb05';
+            ctx.lineCap = 'round';
+
+            ctx.lineWidth = 4 * scale;
+            ctx.beginPath();
+            ctx.moveTo(130 * scale, 380 * scale);
+            ctx.lineTo(382 * scale, 380 * scale);
+            ctx.stroke();
+
+            ctx.lineWidth = 3 * scale;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(150 * scale, 400 * scale);
+            ctx.lineTo(362 * scale, 400 * scale);
+            ctx.stroke();
+
+            ctx.lineWidth = 2 * scale;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(170 * scale, 420 * scale);
+            ctx.lineTo(342 * scale, 420 * scale);
+            ctx.stroke();
+
+            ctx.globalAlpha = 1;
+
+            // Scan line
+            ctx.fillStyle = '#4ade80';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.roundRect(116 * scale, 150 * scale, 280 * scale, 4 * scale, 2 * scale);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const grid = document.getElementById('iconsGrid');
+            grid.innerHTML = '';
+
+            sizes.forEach(size => {
+                const item = document.createElement('div');
+                item.className = 'icon-item';
+
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                drawIcon(ctx, size);
+
+                const label = document.createElement('div');
+                label.textContent = `${size}x${size}`;
+
+                const link = document.createElement('a');
+                link.textContent = 'Download';
+                link.download = `icon-${size}.png`;
+                link.href = canvas.toDataURL('image/png');
+
+                item.appendChild(canvas);
+                item.appendChild(label);
+                item.appendChild(link);
+                grid.appendChild(item);
+            });
+        });
+    </script>
+</body>
+</html>
