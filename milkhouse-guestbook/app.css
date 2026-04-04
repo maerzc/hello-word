@@ -431,3 +431,65 @@ textarea:focus { border-color: var(--accent); }
 .modal input:focus, .modal select:focus { border-color: var(--accent); }
 .modal-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
 .modal-actions .btn { flex: 1; }
+
+/* ===== WEATHER WIDGET ===== */
+.weather-widget {
+    margin-top: 1.2rem;
+    padding: 0.8rem 1.2rem;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: white;
+    position: relative;
+}
+.weather-widget .temp { font-size: 1.6rem; font-weight: 800; }
+.weather-widget .icon { font-size: 1.8rem; }
+.weather-widget .meta { font-size: 0.72rem; opacity: 0.7; text-align: left; }
+.weather-widget .meta strong { display: block; font-size: 0.78rem; opacity: 0.95; font-weight: 600; }
+.weather-loading { opacity: 0.5; font-size: 0.8rem; }
+
+.weather-forecast {
+    display: flex; gap: 0.4rem; margin-top: 0.6rem; justify-content: center;
+    flex-wrap: wrap;
+}
+.weather-day {
+    background: rgba(255,255,255,0.08); padding: 0.5rem 0.6rem; border-radius: 10px;
+    min-width: 60px; text-align: center; color: white;
+}
+.weather-day .d { font-size: 0.65rem; opacity: 0.7; text-transform: uppercase; }
+.weather-day .i { font-size: 1rem; margin: 0.15rem 0; }
+.weather-day .t { font-size: 0.75rem; font-weight: 600; }
+
+/* ===== STAR / HIGHLIGHT ===== */
+.star-btn {
+    background: none; border: none; cursor: pointer; font-size: 1.2rem;
+    color: #ddd; transition: all 0.2s; padding: 0 0.3rem;
+}
+.star-btn.active { color: #f5c518; transform: scale(1.15); }
+.star-btn:hover { color: #f5c518; }
+
+/* ===== TRIPS ===== */
+.trip-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+}
+.trip-item:last-child { border-bottom: none; }
+.trip-from-to { font-weight: 600; font-size: 0.88rem; }
+.trip-date { font-size: 0.72rem; color: var(--text-lighter); }
+.trip-km { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
+
+/* ===== PRINT ===== */
+@media print {
+    .bnav, .hero::before, #map, .media-actions, .btn, .dbtn, .chip-row,
+    .gallery-nav, .gallery-dots, .voice-btn, .modal-bg, .lightbox, #gps-status {
+        display: none !important;
+    }
+    body { background: white; padding: 0; }
+    .sec { display: block !important; page-break-after: always; padding: 1rem; }
+    .hero { background: #222; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .card, .ii, .day-card, .je { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+}

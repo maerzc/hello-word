@@ -562,3 +562,264 @@ renderJournal();
 renderPack();
 renderShop();
 renderExpenses();
+
+// ========== WEATHER WIDGET (Open-Meteo, no API key required) ==========
+async function loadWeather() {
+    const widget = document.getElementById('weather-widget');
+    if (!widget) return;
+    widget.innerHTML = '<span class="weather-loading">Wetter wird geladen...</span>';
+    try {
+        // Weinstadt-Schnait coordinates
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=48.7985&longitude=9.3655&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Europe/Berlin&forecast_days=4';
+        const r = await fetch(url);
+        const d = await r.json();
+        const cur = d.current;
+        const daily = d.daily;
+        const icon = weatherIcon(cur.weather_code);
+        const desc = weatherDesc(cur.weather_code);
+        let html = '<span class="icon">' + icon + '</span>' +
+                   '<span class="temp">' + Math.round(cur.temperature_2m) + '°</span>' +
+                   '<span class="meta"><strong>Weinstadt</strong>' + desc + '</span>';
+        widget.innerHTML = html;
+        // 3-day forecast below
+        let fc = '<div class="weather-forecast">';
+        for (let i = 1; i < 4 && i < daily.time.length; i++) {
+            const date = new Date(daily.time[i]);
+            const dayName = ['So','Mo','Di','Mi','Do','Fr','Sa'][date.getDay()];
+            fc += '<div class="weather-day"><div class="d">' + dayName + '</div><div class="i">' + weatherIcon(daily.weather_code[i]) + '</div><div class="t">' + Math.round(daily.temperature_2m_max[i]) + '°/' + Math.round(daily.temperature_2m_min[i]) + '°</div></div>';
+        }
+        fc += '</div>';
+        widget.insertAdjacentHTML('afterend', fc);
+    } catch (e) {
+        widget.innerHTML = '<span class="weather-loading">Wetter nicht verfuegbar</span>';
+    }
+}
+
+function weatherIcon(code) {
+    if (code === 0) return '☀️';
+    if (code <= 2) return '⛅';
+    if (code === 3) return '☁️';
+    if (code >= 45 && code <= 48) return '🌫️';
+    if (code >= 51 && code <= 67) return '🌧️';
+    if (code >= 71 && code <= 77) return '❄️';
+    if (code >= 80 && code <= 82) return '🌦️';
+    if (code >= 95) return '⛈️';
+    return '🌤️';
+}
+
+function weatherDesc(code) {
+    if (code === 0) return 'Sonnig';
+    if (code <= 2) return 'Leicht bewoelkt';
+    if (code === 3) return 'Bewoelkt';
+    if (code >= 45 && code <= 48) return 'Nebel';
+    if (code >= 51 && code <= 67) return 'Regen';
+    if (code >= 71 && code <= 77) return 'Schnee';
+    if (code >= 80 && code <= 82) return 'Schauer';
+    if (code >= 95) return 'Gewitter';
+    return '';
+}
+
+// ========== HIGHLIGHTS (Star journal entries) ==========
+function toggleStar(i) {
+    jEntries[i].starred = !jEntries[i].starred;
+    sv('journal', jEntries);
+    renderJournal();
+}
+
+// Override renderJournal to include star button
+const _origRenderJournal = renderJournal;
+renderJournal = function() {
+    const c = document.getElementById('journal-entries');
+    if (!jEntries.length) {
+        c.innerHTML = '<div class="empty"><div class="ei">📝</div><p>Noch keine Eintraege.<br>Haltet eure Erlebnisse fest!</p></div>';
+        return;
+    }
+    c.innerHTML = jEntries.map((e, i) => {
+        const starred = e.starred ? 'active' : '';
+        let html = '<div class="je"><div style="display:flex;justify-content:space-between;align-items:center"><div class="je-date">' + esc(e.date) + '</div><div><button class="star-btn ' + starred + '" onclick="toggleStar(' + i + ')" title="Highlight">★</button><button class="dbtn" onclick="delJE(' + i + ')">✕</button></div></div>';
+        if (e.text) html += '<div class="je-text">' + esc(e.text) + '</div>';
+        if (e.gps) html += '<div class="je-loc">📍 <a href="https://www.google.com/maps?q=' + e.gps.lat + ',' + e.gps.lng + '" target="_blank" style="color:inherit;text-decoration:underline">Standort anzeigen</a></div>';
+        if (e.media && e.media.length) {
+            html += '<div class="je-media">';
+            e.media.forEach(m => {
+                if (m.type === 'video') html += '<video src="' + m.data + '" onclick="openLightbox(\'<video controls autoplay src=&quot;' + m.data + '&quot;></video>\')" style="width:100px;height:100px;object-fit:cover;border-radius:10px;cursor:pointer"></video>';
+                else html += '<img src="' + m.data + '" onclick="openLightbox(\'<img src=&quot;' + m.data + '&quot;>\')">';
+            });
+            html += '</div>';
+        } else if (e.photos && e.photos.length) {
+            html += '<div class="je-media">';
+            e.photos.forEach(p => { html += '<img src="' + p + '" onclick="openLightbox(\'<img src=&quot;' + p + '&quot;>\')">'; });
+            html += '</div>';
+        }
+        html += '</div>';
+        return html;
+    }).join('');
+};
+
+// ========== PHOTO LAYER ON MAP ==========
+let photoMarkers = [];
+function togglePhotoLayer() {
+    const on = document.getElementById('show-photos-toggle').checked;
+    photoMarkers.forEach(m => map.removeLayer(m));
+    photoMarkers = [];
+    if (!on) return;
+    const photoIcon = (thumb) => L.divIcon({
+        className: '',
+        html: '<div style="width:40px;height:40px;border-radius:8px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);background-image:url(' + thumb + ');background-size:cover;background-position:center"></div>',
+        iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -20]
+    });
+    jEntries.forEach(e => {
+        // Entry-level GPS
+        if (e.gps && e.media && e.media.length) {
+            const firstImg = e.media.find(m => m.type === 'image');
+            if (firstImg) {
+                const m = L.marker([e.gps.lat, e.gps.lng], {icon: photoIcon(firstImg.data)}).addTo(map);
+                m.bindPopup('<div class="popup-title">' + esc(e.date) + '</div>' + (e.text ? '<div class="popup-addr">' + esc(e.text.substring(0, 100)) + '</div>' : '') + '<img src="' + firstImg.data + '" style="width:100%;max-width:200px;border-radius:8px;margin-top:0.5rem">');
+                photoMarkers.push(m);
+            }
+        }
+        // Per-media GPS (from EXIF)
+        if (e.media) {
+            e.media.forEach(md => {
+                if (md.gps && md.type === 'image') {
+                    const m = L.marker([md.gps.lat, md.gps.lng], {icon: photoIcon(md.data)}).addTo(map);
+                    m.bindPopup('<div class="popup-title">📸 Foto</div><img src="' + md.data + '" style="width:100%;max-width:200px;border-radius:8px">');
+                    photoMarkers.push(m);
+                }
+            });
+        }
+    });
+}
+
+// ========== EXPORT / IMPORT ==========
+function exportData() {
+    const data = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        plan: ld('plan', []),
+        journal: ld('journal', []),
+        pack: ld('pack', []),
+        shop: ld('shop', []),
+        expenses: ld('expenses', []),
+        trips: ld('trips', [])
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'milkhouse-urlaub-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importData(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const d = JSON.parse(ev.target.result);
+            if (!confirm('Import ersetzt alle aktuellen Daten. Fortfahren?')) return;
+            if (d.plan) sv('plan', d.plan);
+            if (d.journal) sv('journal', d.journal);
+            if (d.pack) sv('pack', d.pack);
+            if (d.shop) sv('shop', d.shop);
+            if (d.expenses) sv('expenses', d.expenses);
+            if (d.trips) sv('trips', d.trips);
+            // reload state
+            days = ld('plan', []);
+            jEntries = ld('journal', []);
+            packItems = ld('pack', []);
+            shopItems = ld('shop', []);
+            expenses = ld('expenses', []);
+            trips = ld('trips', []);
+            renderPlan(); renderJournal(); renderPack(); renderShop(); renderExpenses(); renderTrips();
+            alert('Daten erfolgreich importiert!');
+        } catch (err) {
+            alert('Fehler beim Import: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+function exportPDF() {
+    window.print();
+}
+
+// ========== TRIPS / KILOMETER TRACKER ==========
+let trips = ld('trips', []);
+function addTrip() {
+    const from = document.getElementById('trip-from').value.trim();
+    const to = document.getElementById('trip-to').value.trim();
+    const km = parseFloat(document.getElementById('trip-km').value);
+    if (!from || !to || isNaN(km)) return;
+    trips.unshift({from, to, km, date: new Date().toLocaleDateString('de-DE', {day:'numeric', month:'short'})});
+    sv('trips', trips);
+    document.getElementById('trip-from').value = '';
+    document.getElementById('trip-to').value = '';
+    document.getElementById('trip-km').value = '';
+    renderTrips();
+}
+function delTrip(i) { trips.splice(i,1); sv('trips',trips); renderTrips(); }
+function renderTrips() {
+    const sum = document.getElementById('trips-summary');
+    const c = document.getElementById('trips-items');
+    if (!sum || !c) return;
+    const total = trips.reduce((s, t) => s + t.km, 0);
+    sum.innerHTML = '<div class="expense-summary"><div class="expense-total">' + total.toFixed(1) + ' km</div><div class="expense-label">' + trips.length + ' Fahrten insgesamt</div></div>';
+    if (!trips.length) { c.innerHTML = '<div class="empty" style="padding:1rem"><p>Noch keine Fahrten erfasst.</p></div>'; return; }
+    c.innerHTML = '<div class="card">' + trips.map((t, i) =>
+        '<div class="trip-item"><div><div class="trip-from-to">' + esc(t.from) + ' → ' + esc(t.to) + '</div><div class="trip-date">' + esc(t.date) + '</div></div><div style="display:flex;align-items:center;gap:0.5rem"><span class="trip-km">' + t.km.toFixed(1) + ' km</span><button class="dbtn" onclick="delTrip(' + i + ')">✕</button></div></div>'
+    ).join('') + '</div>';
+}
+
+// ========== REISESPIELE (Familien-Modus) ==========
+const TRAVEL_GAMES = [
+    {name: 'Ich sehe was, was du nicht siehst', desc: 'Klassiker fuer lange Autofahrten - ein Spieler waehlt ein sichtbares Objekt, die anderen muessen es erraten.'},
+    {name: 'Kennzeichen-Bingo', desc: 'Wer entdeckt Kfz-Kennzeichen aus den meisten Staedten? Liste fuehren und vergleichen.'},
+    {name: 'Stadt, Land, Fluss', desc: 'Papier-und-Stift-Klassiker fuer den Abend. Buchstabe waehlen und in Kategorien Begriffe finden.'},
+    {name: 'Geschichten-Kette', desc: 'Einer faengt eine Geschichte an, der naechste setzt fort - Satz fuer Satz, bis alle mitgemacht haben.'},
+    {name: 'Farben-Suche', desc: 'Jeder bekommt eine Farbe zugeteilt und muss auf dem Weg moeglichst viele Objekte dieser Farbe finden.'},
+    {name: '20 Fragen', desc: 'Einer denkt sich etwas aus, die anderen haben 20 Ja/Nein-Fragen, um zu erraten, was es ist.'},
+    {name: 'Tier-Ratespiel', desc: 'Ein Spieler denkt sich ein Tier aus und macht Gerausche oder Bewegungen - wer erraet es zuerst?'},
+    {name: 'Wuerfelspiele fuer den Abend', desc: 'Kniffel, Mensch-aerger-dich-nicht, UNO - fragt Tina & Samu, was im Milk House verfuegbar ist.'},
+    {name: 'Schatzsuche im Weinberg', desc: 'Verstecke kleine Dinge im Garten und lasse die Kinder eine Schatzkarte zeichnen.'},
+    {name: 'Foto-Challenge', desc: 'Jedes Familienmitglied soll am Tag ein Foto zu einem Motto machen (z.B. "rund", "alt", "hoch").'}
+];
+function renderGames() {
+    const c = document.getElementById('games-items');
+    if (!c) return;
+    c.innerHTML = TRAVEL_GAMES.map(g =>
+        '<div class="card"><div style="font-weight:700;margin-bottom:0.3rem">🎲 ' + esc(g.name) + '</div><div style="font-size:0.83rem;color:var(--text-light)">' + esc(g.desc) + '</div></div>'
+    ).join('');
+}
+
+// ========== KID-FREUNDLICHE VORSCHLAEGE (erweitern) ==========
+if (typeof SUGGESTIONS !== 'undefined') {
+    SUGGESTIONS['Fuer Kinder'] = [
+        'Bauernhof besuchen im Remstal',
+        'Minigolf spielen',
+        'Eisdiele in Beutelsbach',
+        'Spielplatz in Waiblingen',
+        'Kinderprogramm in der Wilhelma',
+        'Ponyhof-Besuch',
+        'Bach entlang wandern mit Steine sammeln',
+        'Drachen steigen lassen auf dem Kappelberg'
+    ];
+    SUGGESTIONS['Regentage'] = [
+        'Mercedes-Benz Museum',
+        'Porsche Museum',
+        'Brettspiele-Nachmittag im Milk House',
+        'Schwimmbad / Therme besuchen',
+        'Kino in Waiblingen oder Stuttgart',
+        'Kulinarisches Abendessen in der Krone'
+    ];
+}
+
+// ========== INIT ==========
+loadWeather();
+renderTrips();
+renderGames();

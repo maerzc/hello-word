@@ -18,6 +18,7 @@
 <div class="hero">
     <h1>Milk <span>House</span></h1>
     <div class="sub">Familien-Urlaubsplaner</div>
+    <div id="weather-widget" class="weather-widget"></div>
 </div>
 
 <!-- ===== LIGHTBOX ===== -->
@@ -55,6 +56,12 @@
 <div class="sec active" id="karte">
     <h2 class="stitle">Karte<span class="stitle-sub">Alles auf einen Blick</span></h2>
     <div class="map-filters" id="map-filters"></div>
+    <div style="margin-bottom:0.6rem">
+        <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-light);cursor:pointer">
+            <input type="checkbox" id="show-photos-toggle" onchange="togglePhotoLayer()" style="accent-color:var(--accent)">
+            📸 Tagebuch-Fotos auf Karte anzeigen
+        </label>
+    </div>
     <div id="map"></div>
 </div>
 
@@ -187,8 +194,10 @@
     <h2 class="stitle">Listen<span class="stitle-sub">Packen, Einkaufen & Ausgaben</span></h2>
     <div class="chip-row">
         <button class="chip active" onclick="showList('pack',this)">🧳 Packliste</button>
-        <button class="chip" onclick="showList('shop',this)">🛒 Einkaufsliste</button>
+        <button class="chip" onclick="showList('shop',this)">🛒 Einkauf</button>
         <button class="chip" onclick="showList('expense',this)">💰 Ausgaben</button>
+        <button class="chip" onclick="showList('trips',this)">🚗 Fahrten</button>
+        <button class="chip" onclick="showList('games',this)">🎲 Spiele</button>
     </div>
 
     <!-- Packliste -->
@@ -221,6 +230,29 @@
         <div id="expense-items"></div>
         <button class="btn btn-block mt-1" onclick="openExpModal()">+ Ausgabe hinzufuegen</button>
     </div>
+
+    <!-- Fahrten -->
+    <div class="list-sec" id="list-trips">
+        <div id="trips-summary"></div>
+        <div id="trips-items"></div>
+        <div class="card mt-1">
+            <label>Von</label>
+            <input type="text" id="trip-from" placeholder="z.B. Milk House">
+            <label>Nach</label>
+            <input type="text" id="trip-to" placeholder="z.B. Stuttgart">
+            <label>Kilometer</label>
+            <input type="number" id="trip-km" placeholder="0" step="0.1">
+            <button class="btn btn-block mt-1" onclick="addTrip()">+ Fahrt speichern</button>
+        </div>
+    </div>
+
+    <!-- Reisespiele -->
+    <div class="list-sec" id="list-games">
+        <div style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.8rem">
+            Ideen fuer lange Autofahrten oder gemuetliche Abende mit der Familie:
+        </div>
+        <div id="games-items"></div>
+    </div>
 </div>
 
 <!-- UNTERKUNFT -->
@@ -248,10 +280,24 @@
     <div class="card"><div class="card-name">Rems-Murr-Klinik Schorndorf</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971816700">07181 / 67-0</a></div><div class="card-det"><span class="di">📍</span>Schlichtener Strasse 105, 73614 Schorndorf</div></div>
     <div class="card"><div class="card-name">Dr. Erath & Vetter (Tierklinik)</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971958407">07195 / 8407</a></div><div class="card-det"><span class="di">📍</span>Winnender Strasse 17, 71397 Leutenbach</div></div>
 
+    <h3 class="subsec">Daten teilen & exportieren</h3>
+    <div class="card">
+        <div style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.6rem">
+            Da die App lokal speichert, kannst du so Daten mit Tina teilen: Exportiere sie als Datei und Tina importiert sie auf ihrem Geraet.
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="btn btn-sm btn-outline" onclick="exportData()">💾 Als Datei exportieren</button>
+            <button class="btn btn-sm btn-outline" onclick="document.getElementById('import-file').click()">📥 Datei importieren</button>
+            <button class="btn btn-sm btn-outline" onclick="exportPDF()">📄 PDF/Druck</button>
+            <input type="file" accept="application/json" id="import-file" style="display:none" onchange="importData(event)">
+        </div>
+    </div>
+
     <h3 class="subsec">Ueber diese App</h3>
-    <div class="ii"><div class="ii-icon">💾</div><div class="ii-c"><h3>Speicherung</h3><p>Alle Eintraege (Planer, Tagebuch, Listen, Ausgaben) werden lokal im Browser auf deinem Geraet gespeichert. Sie sind <strong>nicht</strong> zwischen mehreren Geraeten synchronisiert. Wenn du den Browser-Cache leerst oder die App in einem anderen Browser oeffnest, sind die Daten nicht mehr sichtbar.</p></div></div>
+    <div class="ii"><div class="ii-icon">💾</div><div class="ii-c"><h3>Speicherung</h3><p>Alle Eintraege werden lokal im Browser auf deinem Geraet gespeichert. Nutze Export/Import oben, um Daten mit Tina zu teilen.</p></div></div>
     <div class="ii"><div class="ii-icon">📍</div><div class="ii-c"><h3>Fotos mit Standort</h3><p>Wenn du Fotos aus der Galerie auswaehlst, werden GPS-Daten aus den EXIF-Metadaten ausgelesen - du kannst so nachvollziehen, wo du was erlebt hast.</p></div></div>
     <div class="ii"><div class="ii-icon">🎙️</div><div class="ii-c"><h3>Spracheingabe</h3><p>Im Planer kannst du per Mikrofon reinsprechen, z.B. "Tag 2: Wandern und Weingut besuchen" - die Eintraege werden automatisch den Tagen zugeordnet.</p></div></div>
+    <div class="ii"><div class="ii-icon">⭐</div><div class="ii-c"><h3>Highlights</h3><p>Markiere deine Lieblings-Tagebucheintraege mit einem Stern, um sie spaeter schnell wiederzufinden.</p></div></div>
 </div>
 
 <!-- BOTTOM NAV -->
