@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="app.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exif-js@2.3.0/exif.js"></script>
 </head>
 <body>
 
@@ -61,11 +62,13 @@
 <div class="sec" id="planner">
     <h2 class="stitle">Tagesplaner<span class="stitle-sub">Was machen wir heute?</span></h2>
     <div id="planner-days"></div>
-    <div style="display:flex;gap:0.5rem;margin-top:0.8rem">
+    <div style="display:flex;gap:0.5rem;margin-top:0.8rem;flex-wrap:wrap">
         <button class="btn btn-outline btn-sm" onclick="addDay()">+ Tag hinzufuegen</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleSuggestions()">💡 Vorschlaege</button>
         <button class="btn btn-outline btn-sm voice-btn" id="plan-voice-btn" onclick="togglePlanVoice()" title="Spracheingabe">🎙️</button>
     </div>
     <div id="voice-status" style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-lighter);display:none"></div>
+    <div id="suggestions-panel" style="display:none;margin-top:0.8rem"></div>
 </div>
 
 <!-- TAGEBUCH -->
@@ -244,6 +247,11 @@
     <div class="card"><div class="card-name">Rems-Murr-Klinikum Winnenden</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971955910">07195 / 591-0</a></div><div class="card-det"><span class="di">📍</span>Am Jakobsweg 1, 71364 Winnenden</div></div>
     <div class="card"><div class="card-name">Rems-Murr-Klinik Schorndorf</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971816700">07181 / 67-0</a></div><div class="card-det"><span class="di">📍</span>Schlichtener Strasse 105, 73614 Schorndorf</div></div>
     <div class="card"><div class="card-name">Dr. Erath & Vetter (Tierklinik)</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971958407">07195 / 8407</a></div><div class="card-det"><span class="di">📍</span>Winnender Strasse 17, 71397 Leutenbach</div></div>
+
+    <h3 class="subsec">Ueber diese App</h3>
+    <div class="ii"><div class="ii-icon">💾</div><div class="ii-c"><h3>Speicherung</h3><p>Alle Eintraege (Planer, Tagebuch, Listen, Ausgaben) werden lokal im Browser auf deinem Geraet gespeichert. Sie sind <strong>nicht</strong> zwischen mehreren Geraeten synchronisiert. Wenn du den Browser-Cache leerst oder die App in einem anderen Browser oeffnest, sind die Daten nicht mehr sichtbar.</p></div></div>
+    <div class="ii"><div class="ii-icon">📍</div><div class="ii-c"><h3>Fotos mit Standort</h3><p>Wenn du Fotos aus der Galerie auswaehlst, werden GPS-Daten aus den EXIF-Metadaten ausgelesen - du kannst so nachvollziehen, wo du was erlebt hast.</p></div></div>
+    <div class="ii"><div class="ii-icon">🎙️</div><div class="ii-c"><h3>Spracheingabe</h3><p>Im Planer kannst du per Mikrofon reinsprechen, z.B. "Tag 2: Wandern und Weingut besuchen" - die Eintraege werden automatisch den Tagen zugeordnet.</p></div></div>
 </div>
 
 <!-- BOTTOM NAV -->

@@ -14,39 +14,51 @@ function ld(k, fb) { try { return JSON.parse(localStorage.getItem('mh_' + k)) ||
 function sv(k, d) { localStorage.setItem('mh_' + k, JSON.stringify(d)); }
 
 // ===== MAP =====
+// Hinweis: Koordinaten sind Näherungswerte. Der Navigations-Button verwendet
+// die Adresse, damit Google Maps exakt geocoded, auch wenn der Marker leicht abweicht.
 const POI = [
-    {cat:'home', name:'Milk House', addr:'Lützestraße 90b, 71384 Weinstadt-Schnait', lat:48.8078, lng:9.3618, hours:''},
-    {cat:'parking', name:'Parkplatz Kelter Schnait', addr:'Lützestraße, Weinstadt-Schnait', lat:48.8082, lng:9.3622, hours:''},
-    {cat:'parking', name:'Parkplatz Silcherstraße', addr:'Silcherstraße, Weinstadt-Schnait', lat:48.8093, lng:9.3598, hours:''},
-    {cat:'parking', name:'Parkplatz Rathaus Schnait', addr:'Beim Rathaus, Weinstadt-Schnait', lat:48.8089, lng:9.3644, hours:''},
-    {cat:'restaurant', name:'Krone Schnait', addr:'Lützestraße 97, 71384 Weinstadt-Schnait', lat:48.8075, lng:9.3612, hours:''},
-    {cat:'restaurant', name:'Gasthof Lamm', addr:'Silcherstraße 75, 71384 Weinstadt-Schnait', lat:48.8090, lng:9.3593, hours:''},
-    {cat:'restaurant', name:'Restaurant Weinstube Anker', addr:'Weinstraße 28, 71384 Weinstadt-Schnait', lat:48.8088, lng:9.3652, hours:''},
-    {cat:'restaurant', name:'Gasthof Adler', addr:'Forststraße 12, 71384 Weinstadt-Baach', lat:48.7985, lng:9.3540, hours:''},
-    {cat:'restaurant', name:'Gasthaus Rössle', addr:'Forststraße 6, 71384 Weinstadt-Baach', lat:48.7988, lng:9.3533, hours:''},
-    {cat:'restaurant', name:'Baacher Forellen', addr:'Brühlweg 9, 71384 Weinstadt-Baach', lat:48.7978, lng:9.3518, hours:''},
-    {cat:'restaurant', name:'Reichmanns Cucina', addr:'Marktstraße 36, 71384 Weinstadt-Baach', lat:48.7992, lng:9.3545, hours:''},
-    {cat:'restaurant', name:'Kostbar Restaurant', addr:'Bruckwiesenstraße 1, 71384 Weinstadt-Großheppach', lat:48.8130, lng:9.3750, hours:''},
-    {cat:'restaurant', name:'Zum Gretle', addr:'Hindenburgstraße 33, 71384 Weinstadt-Strümpfelbach', lat:48.8145, lng:9.3878, hours:''},
-    // Nahbereich
-    {cat:'shopping', name:'Dorfladen Schnait', addr:'Silcherstraße 40, 71384 Weinstadt-Schnait', lat:48.8092, lng:9.3600, hours:'Mo-Fr 7:00-12:30 / 16:30-18:30, Sa 7:00-12:30'},
-    {cat:'shopping', name:'Rewe Beutelsbach', addr:'Daimlerstraße 9, 71384 Weinstadt-Beutelsbach', lat:48.8115, lng:9.3720, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Edeka Großheppach', addr:'Benzstraße 9, 71384 Weinstadt', lat:48.8140, lng:9.3755, hours:'Mo-Sa 8:00-21:00'},
-    {cat:'shopping', name:'Lidl Endersbach', addr:'Großheppacher Straße 70, 71384 Weinstadt-Endersbach', lat:48.8175, lng:9.3700, hours:'Mo-Sa 7:00-21:00'},
-    {cat:'shopping', name:'Aldi Endersbach', addr:'Großheppacher Straße 60/1, 71384 Weinstadt', lat:48.8178, lng:9.3693, hours:'Mo-Sa 7:00-21:00'},
+    {cat:'home', name:'Milk House', addr:'Lützestraße 90b, 71384 Weinstadt-Schnait', lat:48.7985, lng:9.3655, hours:''},
+    {cat:'parking', name:'Parkplatz Kelter Schnait', addr:'Kelter Schnait, Lützestraße, 71384 Weinstadt', lat:48.7988, lng:9.3660, hours:''},
+    {cat:'parking', name:'Parkplatz Silcherhalle', addr:'Silcherstraße, 71384 Weinstadt-Schnait', lat:48.7996, lng:9.3647, hours:''},
+    {cat:'parking', name:'Parkplatz Friedhof Schnait', addr:'Friedhof Schnait, 71384 Weinstadt', lat:48.7978, lng:9.3678, hours:''},
+    // Restaurants Schnait
+    {cat:'restaurant', name:'Krone Schnait', addr:'Lützestraße 97, 71384 Weinstadt-Schnait', lat:48.7984, lng:9.3650, hours:''},
+    {cat:'restaurant', name:'Gasthof Lamm', addr:'Silcherstraße 75, 71384 Weinstadt-Schnait', lat:48.7998, lng:9.3641, hours:''},
+    {cat:'restaurant', name:'Restaurant Weinstube Anker', addr:'Weinstraße 28, 71384 Weinstadt-Schnait', lat:48.7993, lng:9.3670, hours:''},
+    // Baach
+    {cat:'restaurant', name:'Gasthof Adler', addr:'Forststraße 12, 71384 Weinstadt-Baach', lat:48.7945, lng:9.3760, hours:''},
+    {cat:'restaurant', name:'Gasthaus Rössle', addr:'Forststraße 6, 71384 Weinstadt-Baach', lat:48.7946, lng:9.3755, hours:''},
+    {cat:'restaurant', name:'Baacher Forellen & Wild', addr:'Brühlweg 9, 71384 Weinstadt-Baach', lat:48.7938, lng:9.3770, hours:''},
+    {cat:'restaurant', name:'Reichmanns Cucina', addr:'Marktstraße 36, 71384 Weinstadt-Baach', lat:48.7952, lng:9.3748, hours:''},
+    // Großheppach / Strümpfelbach
+    {cat:'restaurant', name:'Kostbar Restaurant', addr:'Bruckwiesenstraße 1, 71384 Weinstadt-Großheppach', lat:48.8148, lng:9.3748, hours:''},
+    {cat:'restaurant', name:'Zum Gretle', addr:'Hindenburgstraße 33, 71384 Weinstadt-Strümpfelbach', lat:48.7970, lng:9.3875, hours:''},
+    // Einkaufen Nahbereich
+    {cat:'shopping', name:'Dorfladen Schnait', addr:'Silcherstraße 40, 71384 Weinstadt-Schnait', lat:48.7997, lng:9.3650, hours:'Mo-Fr 7:00-12:30 / 16:30-18:30, Sa 7:00-12:30'},
+    {cat:'shopping', name:'Rewe Beutelsbach', addr:'Daimlerstraße 9, 71384 Weinstadt-Beutelsbach', lat:48.8095, lng:9.3810, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Edeka Großheppach', addr:'Benzstraße 9, 71384 Weinstadt-Beutelsbach', lat:48.8115, lng:9.3805, hours:'Mo-Sa 8:00-21:00'},
+    {cat:'shopping', name:'Lidl Endersbach', addr:'Großheppacher Straße 70, 71384 Weinstadt-Endersbach', lat:48.8160, lng:9.3780, hours:'Mo-Sa 7:00-21:00'},
+    {cat:'shopping', name:'Aldi Endersbach', addr:'Großheppacher Straße 60, 71384 Weinstadt-Endersbach', lat:48.8158, lng:9.3775, hours:'Mo-Sa 7:00-21:00'},
     // Erweiterter Umkreis
-    {cat:'shopping', name:'Rewe Waiblingen', addr:'Devizesstraße 4, 71332 Waiblingen', lat:48.8295, lng:9.3159, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Edeka Waiblingen', addr:'Fronackerstraße 55, 71332 Waiblingen', lat:48.8316, lng:9.3187, hours:'Mo-Sa 7:00-21:00'},
-    {cat:'shopping', name:'Kaufland Waiblingen', addr:'Dammstraße 2, 71332 Waiblingen', lat:48.8340, lng:9.3168, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Rewe Fellbach', addr:'Stuttgarter Straße 100, 70734 Fellbach', lat:48.8100, lng:9.2760, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Edeka Fellbach', addr:'Bahnhofstraße 28, 70734 Fellbach', lat:48.8118, lng:9.2768, hours:'Mo-Sa 7:30-21:00'},
-    {cat:'shopping', name:'Kaufland Fellbach', addr:'Höhenstraße 40, 70736 Fellbach', lat:48.8230, lng:9.2820, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Rewe Schorndorf', addr:'Gmünder Straße 2, 73614 Schorndorf', lat:48.8035, lng:9.5290, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Edeka Schorndorf', addr:'Heinkelstraße 20, 73614 Schorndorf', lat:48.7990, lng:9.5260, hours:'Mo-Sa 7:00-21:00'},
-    {cat:'shopping', name:'Rewe Kernen', addr:'Waiblinger Straße 84, 71394 Kernen', lat:48.8150, lng:9.3230, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Edeka Korb', addr:'Seestraße 6, 71404 Korb', lat:48.8390, lng:9.3610, hours:'Mo-Sa 7:00-21:00'},
-    {cat:'shopping', name:'Rewe Winnenden', addr:'Waiblinger Straße 63, 71364 Winnenden', lat:48.8760, lng:9.3970, hours:'Mo-Sa 7:00-22:00'},
-    {cat:'shopping', name:'Edeka Esslingen', addr:'Kollwitzstraße 1, 73728 Esslingen', lat:48.7360, lng:9.3100, hours:'Mo-Sa 7:00-21:00'},
+    {cat:'shopping', name:'Rewe Waiblingen', addr:'Devizesstraße 4, 71332 Waiblingen', lat:48.8320, lng:9.3160, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Edeka Waiblingen', addr:'Fronackerstraße 55, 71332 Waiblingen', lat:48.8310, lng:9.3180, hours:'Mo-Sa 7:00-21:00'},
+    {cat:'shopping', name:'Kaufland Waiblingen', addr:'Dammstraße 2, 71332 Waiblingen', lat:48.8335, lng:9.3145, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Rewe Fellbach', addr:'Stuttgarter Straße 100, 70734 Fellbach', lat:48.8090, lng:9.2770, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Edeka Fellbach', addr:'Bahnhofstraße 28, 70734 Fellbach', lat:48.8110, lng:9.2770, hours:'Mo-Sa 7:30-21:00'},
+    {cat:'shopping', name:'Rewe Schorndorf', addr:'Gmünder Straße 2, 73614 Schorndorf', lat:48.8060, lng:9.5250, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Edeka Schorndorf', addr:'Heinkelstraße 20, 73614 Schorndorf', lat:48.7998, lng:9.5240, hours:'Mo-Sa 7:00-21:00'},
+    {cat:'shopping', name:'Rewe Kernen', addr:'Waiblinger Straße 84, 71394 Kernen im Remstal', lat:48.8180, lng:9.3255, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Edeka Korb', addr:'Seestraße 6, 71404 Korb', lat:48.8395, lng:9.3565, hours:'Mo-Sa 7:00-21:00'},
+    {cat:'shopping', name:'Rewe Winnenden', addr:'Waiblinger Straße 63, 71364 Winnenden', lat:48.8720, lng:9.3970, hours:'Mo-Sa 7:00-22:00'},
+    {cat:'shopping', name:'Edeka Esslingen', addr:'Kollwitzstraße 1, 73728 Esslingen am Neckar', lat:48.7395, lng:9.3095, hours:'Mo-Sa 7:00-21:00'},
+    // Sehenswürdigkeiten für Tagesplanung
+    {cat:'sight', name:'Burg Y-Burg', addr:'Y-Burg, 71384 Weinstadt', lat:48.8023, lng:9.3715, hours:'Ruine, frei zugänglich'},
+    {cat:'sight', name:'Altstadt Esslingen', addr:'Marktplatz, 73728 Esslingen am Neckar', lat:48.7410, lng:9.3095, hours:''},
+    {cat:'sight', name:'Altstadt Schorndorf', addr:'Marktplatz, 73614 Schorndorf', lat:48.8050, lng:9.5280, hours:''},
+    {cat:'sight', name:'Altstadt Waiblingen', addr:'Lange Straße, 71332 Waiblingen', lat:48.8300, lng:9.3170, hours:''},
+    {cat:'sight', name:'Wilhelma Stuttgart', addr:'Wilhelma 13, 70376 Stuttgart', lat:48.8045, lng:9.2065, hours:'Täglich ab 8:15 Uhr'},
+    {cat:'sight', name:'Mercedes-Benz Museum', addr:'Mercedesstraße 100, 70372 Stuttgart', lat:48.7880, lng:9.2340, hours:'Di-So 9-18 Uhr'},
+    {cat:'sight', name:'Porsche Museum', addr:'Porscheplatz 1, 70435 Stuttgart', lat:48.8340, lng:9.1530, hours:'Di-So 9-18 Uhr'},
 ];
 
 const CAT_CONFIG = {
@@ -54,6 +66,7 @@ const CAT_CONFIG = {
     parking: {label:'Parkplätze', color:'#1976d2', emoji:'🅿️'},
     restaurant: {label:'Restaurants', color:'#e65100', emoji:'🍽️'},
     shopping: {label:'Einkaufen', color:'#2e7d32', emoji:'🛒'},
+    sight: {label:'Sehenswertes', color:'#7b1fa2', emoji:'📸'},
 };
 
 const map = L.map('map').setView([48.8085, 9.3630], 14);
@@ -81,7 +94,9 @@ function renderMarkers() {
         const m = L.marker([p.lat, p.lng], {icon: makeIcon(cfg.color, cfg.emoji)}).addTo(map);
         let popup = '<div class="popup-title">' + p.name + '</div><div class="popup-addr">' + p.addr + '</div>';
         if (p.hours) popup += '<div class="popup-hours">🕐 ' + p.hours + '</div>';
-        popup += '<a class="popup-nav" href="https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng+'" target="_blank">🧭 Navigation</a>';
+        // Use address for navigation - Google Maps geocodes it correctly even if marker is slightly off
+        const navAddr = encodeURIComponent(p.name + ', ' + p.addr);
+        popup += '<a class="popup-nav" href="https://www.google.com/maps/dir/?api=1&destination='+navAddr+'" target="_blank">🧭 Navigation</a>';
         m.bindPopup(popup);
         markers.push(m);
     });
@@ -144,6 +159,70 @@ function renderPlan() {
         '<div class="add-row"><input type="text" placeholder="Aktivität..." id="pi-'+di+'" onkeydown="if(event.key===\'Enter\')addI('+di+')"><button class="voice-btn" onclick="voiceAddItem('+di+')" title="Spracheingabe">🎙️</button><button class="btn btn-sm" onclick="addI('+di+')">+</button></div></div></div>';
     }).join('');
 }
+// Kuratierte Aktivitäten-Vorschläge für den Remstal-Urlaub
+const SUGGESTIONS = {
+    'Wandern & Natur': [
+        'Wanderung Y-Burg Ruine (ca. 1h, familientauglich)',
+        'Weinlehrpfad Schnait',
+        'Remstal-Höhenweg',
+        'Wanderung Kappelberg Fellbach',
+        'Grafenberg Schorndorf'
+    ],
+    'Weingüter & Kulinarik': [
+        'Weingut besuchen mit Verkostung',
+        'Besen in der Umgebung entdecken',
+        'Abendessen in der Krone Schnait',
+        'Baacher Forellen probieren',
+        'Eis essen in Beutelsbach'
+    ],
+    'Altstädte & Städte': [
+        'Altstadt Esslingen erkunden',
+        'Altstadt Schorndorf',
+        'Altstadt Waiblingen',
+        'Stuttgart Zentrum (Königstraße, Schlossplatz)',
+        'Ludwigsburg Residenzschloss'
+    ],
+    'Familien & Kinder': [
+        'Wilhelma Stuttgart (Zoo & Botanischer Garten)',
+        'Mercedes-Benz Museum',
+        'Porsche Museum',
+        'Erlebnispark Tripsdrill',
+        'Schwimmbad / Wunnebad Winnenden',
+        'Spielplatz in Beutelsbach'
+    ],
+    'Entspannung': [
+        'Gemütlicher Tag im Milk House',
+        'Frühstück auf der Terrasse',
+        'Buch lesen im Garten',
+        'Wellness in der Umgebung',
+        'Spaziergang durch die Weinberge bei Sonnenuntergang'
+    ]
+};
+
+let suggestionsOpen = false;
+function toggleSuggestions() {
+    suggestionsOpen = !suggestionsOpen;
+    const panel = document.getElementById('suggestions-panel');
+    if (!suggestionsOpen) { panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    panel.innerHTML = '<div class="card"><div style="font-size:0.85rem;color:var(--text-lighter);margin-bottom:0.6rem">Tipp: Tippe auf eine Aktivität, um sie zum aktiven Tag hinzuzufuegen. Falls kein Tag existiert, wird einer erstellt.</div>' +
+        Object.entries(SUGGESTIONS).map(([cat, items]) =>
+            '<div style="margin-bottom:0.8rem"><div style="font-weight:700;font-size:0.85rem;margin-bottom:0.3rem;color:var(--accent)">'+cat+'</div>' +
+            '<div class="chip-row">' + items.map(a => '<button class="chip" onclick="addSuggestion(\''+a.replace(/'/g,"\\'")+'\')">+ '+esc(a)+'</button>').join('') + '</div></div>'
+        ).join('') + '</div>';
+}
+
+function addSuggestion(text) {
+    if (!days.length) addDay();
+    // Add to the currently open day, or the last one
+    let targetIdx = days.findIndex(d => d.open);
+    if (targetIdx === -1) targetIdx = days.length - 1;
+    days[targetIdx].items.push({text: text, done: false});
+    days[targetIdx].open = true;
+    sv('plan', days);
+    renderPlan();
+}
+
 function addDay() { const n = days.length + 1; days.push({label:'Tag '+n, items:[], open:true}); days.forEach((d,i) => { if (i < days.length-1) d.open = false; }); sv('plan',days); renderPlan(); }
 function delD(i) { if (confirm('Tag löschen?')) { days.splice(i,1); sv('plan',days); renderPlan(); } }
 function togD(i) { days[i].open = !days[i].open; sv('plan',days); renderPlan(); }
@@ -249,20 +328,71 @@ function capturePhoto() { document.getElementById('cam-photo').click(); }
 function captureVideo() { document.getElementById('cam-video').click(); }
 function pickFile() { document.getElementById('cam-file').click(); }
 
+// EXIF helper: converts [deg, min, sec] to decimal
+function exifDMS2Decimal(dms, ref) {
+    if (!dms || dms.length < 3) return null;
+    let dec = dms[0] + dms[1]/60 + dms[2]/3600;
+    if (ref === 'S' || ref === 'W') dec = -dec;
+    return dec;
+}
+
+function readExif(file, cb) {
+    if (typeof EXIF === 'undefined') { cb(null, null); return; }
+    EXIF.getData(file, function() {
+        const lat = EXIF.getTag(this, 'GPSLatitude');
+        const latRef = EXIF.getTag(this, 'GPSLatitudeRef');
+        const lng = EXIF.getTag(this, 'GPSLongitude');
+        const lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
+        const dateStr = EXIF.getTag(this, 'DateTimeOriginal') || EXIF.getTag(this, 'DateTime');
+        let gps = null, date = null;
+        if (lat && lng) {
+            gps = {lat: exifDMS2Decimal(lat, latRef), lng: exifDMS2Decimal(lng, lngRef)};
+        }
+        if (dateStr) {
+            // EXIF date format: "YYYY:MM:DD HH:MM:SS"
+            const m = dateStr.match(/(\d{4}):(\d{2}):(\d{2})\s(\d{2}):(\d{2}):(\d{2})/);
+            if (m) date = new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+        }
+        cb(gps, date);
+    });
+}
+
 ['cam-photo', 'cam-video', 'cam-file'].forEach(id => {
     document.getElementById(id).addEventListener('change', function(e) {
         Array.from(e.target.files).forEach(f => {
+            const type = f.type.startsWith('video') ? 'video' : 'image';
             const r = new FileReader();
             r.onload = ev => {
-                const type = f.type.startsWith('video') ? 'video' : 'image';
-                pendingMedia.push({data: ev.target.result, type: type});
-                renderMediaPreview();
+                const item = {data: ev.target.result, type: type};
+                // Extract EXIF GPS/date from gallery photos
+                if (type === 'image' && id === 'cam-file') {
+                    readExif(f, (gps, date) => {
+                        if (gps) { item.gps = gps; if (!currentGPS) currentGPS = gps; }
+                        if (date) item.date = date.toISOString();
+                        pendingMedia.push(item);
+                        renderMediaPreview();
+                        updateGpsStatus();
+                    });
+                } else {
+                    pendingMedia.push(item);
+                    renderMediaPreview();
+                }
             };
             r.readAsDataURL(f);
         });
         e.target.value = '';
     });
 });
+
+function updateGpsStatus() {
+    const status = document.getElementById('gps-status');
+    const withGps = pendingMedia.filter(m => m.gps).length;
+    if (withGps > 0) {
+        status.textContent = '📍 ' + withGps + ' Foto(s) mit GPS-Daten aus EXIF erkannt';
+    } else if (currentGPS) {
+        status.textContent = '📍 Standort erfasst';
+    }
+}
 
 function renderMediaPreview() {
     const pv = document.getElementById('media-preview');
@@ -291,11 +421,14 @@ let jEntries = ld('journal', []);
 function addJournalEntry() {
     const t = document.getElementById('journal-input').value.trim();
     if (!t && !pendingMedia.length) return;
+    // Use GPS from first photo with EXIF data, fallback to live GPS
+    const mediaGps = pendingMedia.find(m => m.gps);
+    const entryGps = (mediaGps && mediaGps.gps) || currentGPS;
     jEntries.unshift({
         date: new Date().toLocaleString('de-DE', {weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'}),
         text: t,
         media: pendingMedia.slice(0, 10),
-        gps: currentGPS
+        gps: entryGps
     });
     sv('journal', jEntries);
     document.getElementById('journal-input').value = '';
