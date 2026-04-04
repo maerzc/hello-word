@@ -3,369 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Milk House Urlaub</title>
+    <title>Milk House – Urlaub</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Milk House">
-    <meta name="theme-color" content="#1a1a2e">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="app.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #faf8f5; --card: #ffffff; --text: #2d2d2d; --text-light: #6b6b6b;
-            --accent: #c9956b; --accent-dark: #a37a55; --accent-light: #f5ebe3;
-            --border: #e8e4df; --danger: #d32f2f; --success: #4caf50;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg); color: var(--text); line-height: 1.6;
-            -webkit-font-smoothing: antialiased; padding-bottom: 4.5rem;
-        }
-        .hero {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: white; text-align: center; padding: 2rem 1.5rem 1.5rem;
-        }
-        .hero h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; }
-        .hero .sub { font-size: 0.8rem; opacity: 0.6; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem; }
-
-        /* Bottom Nav */
-        .bnav {
-            position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
-            border-top: 1px solid var(--border); display: flex; z-index: 200;
-            padding-bottom: env(safe-area-inset-bottom, 0);
-        }
-        .bnav button {
-            flex: 1; padding: 0.45rem 0; border: none; background: none; font-size: 0.6rem;
-            font-weight: 600; color: var(--text-light); cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; gap: 0.1rem;
-        }
-        .bnav button .ic { font-size: 1.3rem; }
-        .bnav button.active { color: var(--accent); }
-
-        /* Sections */
-        .sec { display: none; padding: 1.2rem; max-width: 600px; margin: 0 auto; }
-        .sec.active { display: block; animation: fi 0.25s ease; }
-        @keyframes fi { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .stitle { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; }
-
-        /* Map */
-        #map { width: 100%; height: 55vh; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1rem; }
-        .map-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
-        .mf-btn {
-            padding: 0.35rem 0.7rem; border-radius: 20px; border: 1.5px solid var(--border);
-            background: var(--card); font-size: 0.75rem; font-weight: 600; cursor: pointer; color: var(--text-light);
-        }
-        .mf-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .leaflet-popup-content { font-family: inherit; }
-        .popup-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
-        .popup-addr { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.5rem; }
-        .popup-hours { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.5rem; }
-        .popup-nav {
-            display: inline-block; padding: 0.4rem 0.8rem; background: var(--accent); color: white;
-            text-decoration: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
-        }
-
-        /* Cards */
-        .card {
-            background: var(--card); border-radius: 12px; padding: 1rem 1.2rem;
-            margin-bottom: 0.7rem; border: 1px solid var(--border);
-        }
-        .card-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
-        .card-det { font-size: 0.83rem; color: var(--text-light); display: flex; gap: 0.4rem; margin-bottom: 0.2rem; }
-        .card-det .di { flex-shrink: 0; width: 1.1rem; text-align: center; }
-        .card-det a { color: var(--accent-dark); text-decoration: none; }
-        .card-link { color: var(--accent); text-decoration: none; font-size: 0.8rem; font-weight: 600; margin-top: 0.3rem; display: inline-block; }
-
-        /* Planner */
-        .day-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 0.8rem; overflow: hidden; }
-        .day-hdr {
-            padding: 0.8rem 1rem; font-weight: 700; font-size: 0.95rem; display: flex;
-            justify-content: space-between; align-items: center; cursor: pointer; background: var(--accent-light);
-        }
-        .day-hdr .dd { color: var(--text-light); font-weight: 400; font-size: 0.8rem; }
-        .day-body { padding: 0.8rem 1rem; display: none; }
-        .day-body.open { display: block; }
-        .pi { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        .pi:last-of-type { border-bottom: none; }
-        .pi input[type="checkbox"] { margin-top: 0.25rem; width: 1.1rem; height: 1.1rem; accent-color: var(--accent); flex-shrink: 0; }
-        .pi .pt { flex: 1; }
-        .pi .pt.done { text-decoration: line-through; color: var(--text-light); }
-        .dbtn { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 0 0.3rem; }
-        .dbtn:hover { color: var(--danger); }
-        .add-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-        .add-row input { flex: 1; padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; }
-        .add-row input:focus { border-color: var(--accent); }
-        .add-row button, .btn { padding: 0.5rem 1rem; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
-        .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
-        .btn-outline { background: none; color: var(--accent); border: 1.5px solid var(--accent); }
-
-        /* Journal */
-        .je { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
-        .je-date { font-size: 0.75rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .je-text { margin-top: 0.4rem; font-size: 0.9rem; white-space: pre-wrap; }
-        .je-photos { display: flex; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap; }
-        .je-photos img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
-        textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 80px; outline: none; }
-        textarea:focus { border-color: var(--accent); }
-        .ja { display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center; }
-        .ja .pl { padding: 0.5rem 0.8rem; background: var(--accent-light); color: var(--accent-dark); border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-
-        /* Emergency */
-        .egrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 1.2rem; }
-        .ebox { background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px; padding: 1rem; text-align: center; }
-        .ebox .num { font-size: 1.8rem; font-weight: 900; color: var(--danger); }
-        .ebox .lbl { font-size: 0.75rem; color: var(--text-light); margin-top: 0.2rem; }
-        .ebox a { color: var(--danger); text-decoration: none; }
-        .subsec { font-size: 1rem; font-weight: 700; margin: 1.2rem 0 0.6rem; }
-
-        /* Info items */
-        .ii { background: var(--card); border-radius: 12px; padding: 1rem 1.2rem; border: 1px solid var(--border); display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 0.7rem; }
-        .ii-icon { font-size: 1.6rem; flex-shrink: 0; width: 2rem; text-align: center; }
-        .ii-c h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.15rem; }
-        .ii-c p { font-size: 0.83rem; color: var(--text-light); }
-        .ii-c strong { color: var(--text); }
-        .cr { display: flex; gap: 0.6rem; margin-top: 0.8rem; }
-        .cr a { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.7rem; background: var(--accent); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 0.85rem; }
-
-        .mt-1 { margin-top: 0.8rem; }
-        .mb-1 { margin-bottom: 0.8rem; }
-        .tc { text-align: center; }
-        .tm { color: var(--text-light); font-size: 0.83rem; }
-        .empty { text-align: center; padding: 2rem 1rem; color: var(--text-light); }
-        .empty .ei { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .toggle-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    </style>
 </head>
 <body>
 
 <div class="hero">
-    <h1>Milk House</h1>
-    <div class="sub">Urlaub in Weinstadt</div>
+    <h1>Milk <span>House</span></h1>
+    <div class="sub">Familien-Urlaubsplaner</div>
 </div>
 
-<!-- ===== KARTE ===== -->
+<!-- ===== LIGHTBOX ===== -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <div id="lightbox-content"></div>
+</div>
+
+<!-- ===== EXPENSE MODAL ===== -->
+<div class="modal-bg" id="expense-modal">
+    <div class="modal">
+        <h3>Ausgabe hinzufuegen</h3>
+        <label>Beschreibung</label>
+        <input type="text" id="exp-desc" placeholder="z.B. Abendessen Krone">
+        <label>Betrag (EUR)</label>
+        <input type="number" id="exp-amount" placeholder="0.00" step="0.01">
+        <label>Kategorie</label>
+        <select id="exp-cat">
+            <option value="Essen">Essen & Trinken</option>
+            <option value="Einkauf">Einkauf</option>
+            <option value="Aktivitaet">Aktivitaet</option>
+            <option value="Transport">Transport</option>
+            <option value="Sonstiges">Sonstiges</option>
+        </select>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeExpModal()">Abbrechen</button>
+            <button class="btn" onclick="addExpense()">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== SECTIONS ========== -->
+
+<!-- KARTE -->
 <div class="sec active" id="karte">
-    <h2 class="stitle">Karte</h2>
+    <h2 class="stitle">Karte<span class="stitle-sub">Alles auf einen Blick</span></h2>
     <div class="map-filters" id="map-filters"></div>
     <div id="map"></div>
-    <div id="map-list"></div>
 </div>
 
-<!-- ===== PLANNER ===== -->
+<!-- PLANER -->
 <div class="sec" id="planner">
-    <h2 class="stitle">Tagesplaner</h2>
+    <h2 class="stitle">Tagesplaner<span class="stitle-sub">Was machen wir heute?</span></h2>
     <div id="planner-days"></div>
-    <button class="btn btn-outline btn-sm mt-1" onclick="addDay()">+ Tag hinzufuegen</button>
+    <div style="display:flex;gap:0.5rem;margin-top:0.8rem">
+        <button class="btn btn-outline btn-sm" onclick="addDay()">+ Tag hinzufuegen</button>
+        <button class="btn btn-outline btn-sm voice-btn" id="plan-voice-btn" onclick="togglePlanVoice()" title="Spracheingabe">🎙️</button>
+    </div>
+    <div id="voice-status" style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-lighter);display:none"></div>
 </div>
 
-<!-- ===== JOURNAL ===== -->
+<!-- TAGEBUCH -->
 <div class="sec" id="journal">
-    <h2 class="stitle">Reisetagebuch</h2>
+    <h2 class="stitle">Reisetagebuch<span class="stitle-sub">Eure Erlebnisse festhalten</span></h2>
     <div class="card mb-1">
         <textarea id="journal-input" placeholder="Was habt ihr heute erlebt?"></textarea>
-        <div class="ja">
-            <label class="pl">Foto<input type="file" accept="image/*" id="journal-photo" style="display:none" multiple></label>
-            <div id="photo-preview" style="display:flex;gap:0.3rem;flex-wrap:wrap;"></div>
+        <div class="media-actions">
+            <button class="media-btn" onclick="capturePhoto()">📷 Foto</button>
+            <button class="media-btn" onclick="captureVideo()">🎥 Video</button>
+            <button class="media-btn" onclick="pickFile()">🖼️ Galerie</button>
+            <input type="file" accept="image/*" capture="environment" id="cam-photo" style="display:none" multiple>
+            <input type="file" accept="video/*" capture="environment" id="cam-video" style="display:none">
+            <input type="file" accept="image/*,video/*" id="cam-file" style="display:none" multiple>
             <div style="flex:1"></div>
             <button class="btn btn-sm" onclick="addJournalEntry()">Speichern</button>
         </div>
+        <div id="media-preview" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem"></div>
+        <div id="gps-status" style="font-size:0.72rem;color:var(--text-lighter);margin-top:0.3rem"></div>
     </div>
     <div id="journal-entries"></div>
 </div>
 
-<!-- ===== UNTERKUNFT ===== -->
+<!-- WILLKOMMENSBUCH -->
+<div class="sec" id="buch">
+    <h2 class="stitle">Willkommensbuch<span class="stitle-sub">Infos von Tina & Samu</span></h2>
+    <div class="gallery-slider" id="gallery-slider">
+        <div class="gallery-track" id="gallery-track">
+            <!-- Slide 1: Willkommen -->
+            <div class="gallery-slide">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">🏡</div>
+                <h2>Willkommen im<br>Milk House</h2>
+                <div class="slide-content">
+                    <p>Herzlich Willkommen bei uns im schoenen Weinstadt. Ihr wohnt hier in Schnaits aeltestem Haus.</p>
+                    <p style="margin-top:0.5rem">Noch vor ein paar Jahrzehnten wurde hier taeglich Milch geliefert und abgeholt. Nun verbringt ihr hier ein paar schoene Naechte.</p>
+                    <p style="margin-top:0.5rem">Im Remstal gibt es viel zu entdecken: wandern, Weingueter besuchen oder die Altstaedte von Esslingen, Schorndorf oder Waiblingen.</p>
+                    <p style="margin-top:0.8rem;font-style:italic;color:var(--accent)">— Tina & Samu</p>
+                </div>
+            </div>
+            <!-- Slide 2: Eckpunkte -->
+            <div class="gallery-slide">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">ℹ️</div>
+                <h2>Eckpunkte</h2>
+                <div class="slide-items">
+                    <div class="slide-item"><strong>📍 Adresse</strong><span>Luetzestrasse 90b, 71384 Weinstadt</span></div>
+                    <div class="slide-item"><strong>📶 WLAN</strong><span>Netzwerk: Milchhaeusle — Passwort: Milkhouse1890</span></div>
+                    <div class="slide-item"><strong>🚭 Rauchverbot</strong><span>Absolutes Rauchverbot!</span></div>
+                    <div class="slide-item"><strong>💡 Licht</strong><span>Bitte ausschalten beim Verlassen</span></div>
+                    <div class="slide-item"><strong>🐕 Haustiere</strong><span>Nicht ins Bett oder aufs Sofa</span></div>
+                    <div class="slide-item"><strong>📖 Anleitungen</strong><span>In der Eckkommode unter der Treppe</span></div>
+                </div>
+            </div>
+            <!-- Slide 3: Restaurants -->
+            <div class="gallery-slide">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">🍽️</div>
+                <h2>Restaurants</h2>
+                <div class="slide-items">
+                    <div class="slide-item"><strong>Krone Schnait</strong><span>Luetzestrasse 97</span></div>
+                    <div class="slide-item"><strong>Gasthof Lamm</strong><span>Silcherstrasse 75</span></div>
+                    <div class="slide-item"><strong>Weinstube Anker</strong><span>Weinstrasse 28</span></div>
+                    <div class="slide-item"><strong>Gasthof Adler</strong><span>Forststrasse 12, Baach</span></div>
+                    <div class="slide-item"><strong>Gasthaus Roessle</strong><span>Forststrasse 6, Baach</span></div>
+                    <div class="slide-item"><strong>Baacher Forellen</strong><span>Bruehlweg 9, Baach</span></div>
+                    <div class="slide-item"><strong>Reichmanns Cucina</strong><span>Marktstrasse 36, Baach</span></div>
+                    <div class="slide-item"><strong>Kostbar</strong><span>Bruckwiesenstrasse 1, Grossheppach</span></div>
+                    <div class="slide-item"><strong>Zum Gretle</strong><span>Hindenburgstrasse 33, Struempfelbach</span></div>
+                </div>
+            </div>
+            <!-- Slide 4: Einkaufen -->
+            <div class="gallery-slide">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">🛒</div>
+                <h2>Einkaufen</h2>
+                <div class="slide-items">
+                    <div class="slide-item"><strong>Dorfladen Schnait</strong><span>Silcherstr. 40 — Mo-Fr 7-12:30/16:30-18:30, Sa 7-12:30</span></div>
+                    <div class="slide-item"><strong>Rewe Beutelsbach</strong><span>Daimlerstr. 9 — Mo-Sa 7-22</span></div>
+                    <div class="slide-item"><strong>Edeka Grossheppach</strong><span>Benzstr. 9 — Mo-Sa 8-21</span></div>
+                    <div class="slide-item"><strong>Lidl Endersbach</strong><span>Grossheppacher Str. 70 — Mo-Sa 7-21</span></div>
+                    <div class="slide-item"><strong>Aldi Endersbach</strong><span>Grossheppacher Str. 60/1 — Mo-Sa 7-21</span></div>
+                </div>
+            </div>
+            <!-- Slide 5: Notfaelle -->
+            <div class="gallery-slide">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">🚨</div>
+                <h2>Notfaelle</h2>
+                <div class="slide-items">
+                    <div class="slide-item"><strong>🚑 Rettungsdienst / Feuerwehr</strong><span>112</span></div>
+                    <div class="slide-item"><strong>🚔 Polizei</strong><span>110</span></div>
+                    <div class="slide-item"><strong>Polizeiposten Weinstadt</strong><span>07151/65061, Sommestr. 1</span></div>
+                    <div class="slide-item"><strong>Klinikum Winnenden</strong><span>07195/591-0, Am Jakobsweg 1</span></div>
+                    <div class="slide-item"><strong>Klinik Schorndorf</strong><span>07181/67-0, Schlichtener Str. 105</span></div>
+                    <div class="slide-item"><strong>Tierklinik Dr. Erath</strong><span>07195/8407, Leutenbach</span></div>
+                </div>
+            </div>
+            <!-- Slide 6: Kontakt -->
+            <div class="gallery-slide">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">📞</div>
+                <h2>Kontakt</h2>
+                <div class="slide-content">
+                    <p style="font-size:1rem;margin-bottom:1rem">Bei Fragen meldet euch gerne!</p>
+                    <div style="display:flex;flex-direction:column;gap:0.6rem;width:100%;max-width:280px">
+                        <a href="tel:+4915774445914" style="padding:0.8rem;background:var(--accent);color:white;border-radius:10px;text-decoration:none;font-weight:600;text-align:center">📞 +49 1577 4445914</a>
+                        <a href="mailto:milkhouse@gmx.de" style="padding:0.8rem;background:var(--accent);color:white;border-radius:10px;text-decoration:none;font-weight:600;text-align:center">✉️ milkhouse@gmx.de</a>
+                    </div>
+                    <p style="margin-top:1.5rem;font-style:italic;color:var(--accent)">Tina & Samu</p>
+                </div>
+            </div>
+        </div>
+        <button class="gallery-nav prev" onclick="galleryPrev()">‹</button>
+        <button class="gallery-nav next" onclick="galleryNext()">›</button>
+    </div>
+    <div class="gallery-dots" id="gallery-dots"></div>
+</div>
+
+<!-- LISTEN -->
+<div class="sec" id="listen">
+    <h2 class="stitle">Listen<span class="stitle-sub">Packen, Einkaufen & Ausgaben</span></h2>
+    <div class="chip-row">
+        <button class="chip active" onclick="showList('pack',this)">🧳 Packliste</button>
+        <button class="chip" onclick="showList('shop',this)">🛒 Einkaufsliste</button>
+        <button class="chip" onclick="showList('expense',this)">💰 Ausgaben</button>
+    </div>
+
+    <!-- Packliste -->
+    <div class="list-sec active" id="list-pack">
+        <div id="pack-items"></div>
+        <div class="add-row mt-1">
+            <input type="text" placeholder="Gegenstand..." id="pack-input" onkeydown="if(event.key==='Enter')addPackItem()">
+            <button class="btn btn-sm" onclick="addPackItem()">+</button>
+        </div>
+        <div class="chip-row mt-1">
+            <button class="chip" onclick="addPackPreset('kleidung')">+ Kleidung</button>
+            <button class="chip" onclick="addPackPreset('hygiene')">+ Hygiene</button>
+            <button class="chip" onclick="addPackPreset('tech')">+ Technik</button>
+            <button class="chip" onclick="addPackPreset('kinder')">+ Kinder</button>
+        </div>
+    </div>
+
+    <!-- Einkaufsliste -->
+    <div class="list-sec" id="list-shop">
+        <div id="shop-items"></div>
+        <div class="add-row mt-1">
+            <input type="text" placeholder="Was einkaufen?" id="shop-input" onkeydown="if(event.key==='Enter')addShopItem()">
+            <button class="btn btn-sm" onclick="addShopItem()">+</button>
+        </div>
+    </div>
+
+    <!-- Ausgaben -->
+    <div class="list-sec" id="list-expense">
+        <div id="expense-summary"></div>
+        <div id="expense-items"></div>
+        <button class="btn btn-block mt-1" onclick="openExpModal()">+ Ausgabe hinzufuegen</button>
+    </div>
+</div>
+
+<!-- UNTERKUNFT -->
 <div class="sec" id="unterkunft">
-    <h2 class="stitle">Unterkunft</h2>
-    <div class="ii"><div class="ii-icon">🏡</div><div class="ii-c"><h3>Adresse</h3><p>Lützestraße 90b<br>71384 Weinstadt-Schnait</p></div></div>
-    <div class="ii"><div class="ii-icon">📶</div><div class="ii-c"><h3>WLAN</h3><p>Netzwerk: <strong>Milchhäusle</strong><br>Passwort: <strong>Milkhouse1890</strong></p></div></div>
+    <h2 class="stitle">Unterkunft<span class="stitle-sub">Alles Wichtige</span></h2>
+    <div class="ii"><div class="ii-icon">🏡</div><div class="ii-c"><h3>Adresse</h3><p>Luetzestrasse 90b<br>71384 Weinstadt-Schnait</p></div></div>
+    <div class="ii"><div class="ii-icon">📶</div><div class="ii-c"><h3>WLAN</h3><p>Netzwerk: <strong>Milchhaeusle</strong><br>Passwort: <strong>Milkhouse1890</strong></p></div></div>
     <div class="ii"><div class="ii-icon">🚭</div><div class="ii-c"><h3>Rauchverbot</h3><p>Absolutes Rauchverbot in der Wohnung!</p></div></div>
-    <div class="ii"><div class="ii-icon">💡</div><div class="ii-c"><h3>Licht</h3><p>Bitte Licht löschen beim Verlassen der Wohnung.</p></div></div>
+    <div class="ii"><div class="ii-icon">💡</div><div class="ii-c"><h3>Licht</h3><p>Bitte Licht loeschen beim Verlassen.</p></div></div>
     <div class="ii"><div class="ii-icon">🐕</div><div class="ii-c"><h3>Haustiere</h3><p>Tiere bitte nicht ins Bett oder auf das Sofa.</p></div></div>
     <div class="ii"><div class="ii-icon">📖</div><div class="ii-c"><h3>Gebrauchsanweisungen</h3><p>In der Eckkommode unter der Treppe.</p></div></div>
     <div class="cr mt-1">
-        <a href="tel:+4915774445914">Anrufen</a>
-        <a href="mailto:milkhouse@gmx.de">E-Mail</a>
+        <a href="tel:+4915774445914">📞 Anrufen</a>
+        <a href="mailto:milkhouse@gmx.de">✉️ E-Mail</a>
     </div>
     <p class="tc tm mt-1">Gastgeber: Tina & Samu</p>
-</div>
 
-<!-- ===== NOTFÄLLE ===== -->
-<div class="sec" id="notfaelle">
-    <h2 class="stitle">Notfälle</h2>
+    <h3 class="subsec">Notfaelle</h3>
     <div class="egrid">
         <div class="ebox"><a href="tel:112"><div class="num">112</div></a><div class="lbl">Rettungsdienst / Feuerwehr</div></div>
         <div class="ebox"><a href="tel:110"><div class="num">110</div></a><div class="lbl">Polizei</div></div>
     </div>
-    <div class="subsec">Polizei</div>
-    <div class="card"><div class="card-name">Polizeiposten Weinstadt</div><div class="card-det"><span class="di">📞</span><a href="tel:+4907151650061">07151 / 65061</a></div><div class="card-det"><span class="di">📍</span>Sommestraße 1, 71384 Weinstadt Beutelsbach</div></div>
-    <div class="card"><div class="card-name">Polizeiposten Fellbach</div><div class="card-det"><span class="di">📞</span><a href="tel:+49071157720">0711 / 57720</a></div><div class="card-det"><span class="di">📍</span>Canstatter Str. 16, 70734 Fellbach</div></div>
-    <div class="subsec">Krankenhaus</div>
-    <div class="card"><div class="card-name">Rems-Murr-Klinikum Winnenden</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971955910">07195 / 591-0</a></div><div class="card-det"><span class="di">📍</span>Am Jakobsweg 1, 71364 Winnenden</div><a class="card-link" href="https://maps.google.com/?q=Am+Jakobsweg+1+71364+Winnenden" target="_blank">Karte</a></div>
-    <div class="card"><div class="card-name">Rems-Murr-Klinik Schorndorf</div><div class="card-det"><span class="di">📞</span><a href="tel:+49718167-0">07181 / 67-0</a></div><div class="card-det"><span class="di">📍</span>Schlichtener Straße 105, 73614 Schorndorf</div><a class="card-link" href="https://maps.google.com/?q=Schlichtener+Straße+105+73614+Schorndorf" target="_blank">Karte</a></div>
-    <div class="subsec">Tierklinik</div>
-    <div class="card"><div class="card-name">Dr. Erath & Vetter</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971958407">07195 / 8407</a></div><div class="card-det"><span class="di">📍</span>Winnender Straße 17, 71397 Leutenbach</div></div>
-    <div class="card"><div class="card-name">Kleintierklinik Ludwigsburg-Oßweil</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971412999030">07141 / 2999030</a></div><div class="card-det"><span class="di">📍</span>Karl-Heinrich-Käferle-Straße 2, 71640 Ludwigsburg</div></div>
+    <div class="card"><div class="card-name">Polizeiposten Weinstadt</div><div class="card-det"><span class="di">📞</span><a href="tel:+4907151650061">07151 / 65061</a></div><div class="card-det"><span class="di">📍</span>Sommestrasse 1, 71384 Weinstadt</div></div>
+    <div class="card"><div class="card-name">Rems-Murr-Klinikum Winnenden</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971955910">07195 / 591-0</a></div><div class="card-det"><span class="di">📍</span>Am Jakobsweg 1, 71364 Winnenden</div></div>
+    <div class="card"><div class="card-name">Rems-Murr-Klinik Schorndorf</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971816700">07181 / 67-0</a></div><div class="card-det"><span class="di">📍</span>Schlichtener Strasse 105, 73614 Schorndorf</div></div>
+    <div class="card"><div class="card-name">Dr. Erath & Vetter (Tierklinik)</div><div class="card-det"><span class="di">📞</span><a href="tel:+4971958407">07195 / 8407</a></div><div class="card-det"><span class="di">📍</span>Winnender Strasse 17, 71397 Leutenbach</div></div>
 </div>
 
-<!-- Bottom Nav -->
+<!-- BOTTOM NAV -->
 <nav class="bnav">
     <button class="active" onclick="go('karte',this)"><span class="ic">🗺️</span>Karte</button>
     <button onclick="go('planner',this)"><span class="ic">📅</span>Planer</button>
     <button onclick="go('journal',this)"><span class="ic">📝</span>Tagebuch</button>
-    <button onclick="go('unterkunft',this)"><span class="ic">🏠</span>Unterkunft</button>
-    <button onclick="go('notfaelle',this)"><span class="ic">🚨</span>Notfall</button>
+    <button onclick="go('buch',this)"><span class="ic">📖</span>Buch</button>
+    <button onclick="go('listen',this)"><span class="ic">📋</span>Listen</button>
+    <button onclick="go('unterkunft',this)"><span class="ic">🏠</span>Info</button>
 </nav>
 
-<script>
-// ===== Nav =====
-function go(id, btn) {
-    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.bnav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if (btn) btn.classList.add('active');
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    if (id === 'karte') setTimeout(() => map.invalidateSize(), 100);
-}
-
-// ===== Map Data =====
-const POI = [
-    // Parking
-    {cat:'parking', name:'Parkplatz Kelter Schnait', addr:'Lützestraße, Weinstadt-Schnait', lat:48.8082, lng:9.3622, hours:''},
-    {cat:'parking', name:'Parkplatz Silcherstraße', addr:'Silcherstraße, Weinstadt-Schnait', lat:48.8093, lng:9.3598, hours:''},
-    {cat:'parking', name:'Parkplatz Rathaus Schnait', addr:'Beim Rathaus, Weinstadt-Schnait', lat:48.8089, lng:9.3644, hours:''},
-    // Home
-    {cat:'home', name:'Milk House', addr:'Lützestraße 90b, 71384 Weinstadt-Schnait', lat:48.8078, lng:9.3618, hours:''},
-    // Restaurants
-    {cat:'restaurant', name:'Krone Schnait', addr:'Lützestraße 97, 71384 Weinstadt-Schnait', lat:48.8075, lng:9.3612, hours:''},
-    {cat:'restaurant', name:'Gasthof Lamm', addr:'Silcherstraße 75, 71384 Weinstadt-Schnait', lat:48.8090, lng:9.3593, hours:''},
-    {cat:'restaurant', name:'Restaurant Weinstube Anker', addr:'Weinstraße 28, 71384 Weinstadt-Schnait', lat:48.8088, lng:9.3652, hours:''},
-    {cat:'restaurant', name:'Gasthof Adler', addr:'Forststraße 12, 71384 Weinstadt-Baach', lat:48.7985, lng:9.3540, hours:''},
-    {cat:'restaurant', name:'Gasthaus Rössle', addr:'Forststraße 6, 71384 Weinstadt-Baach', lat:48.7988, lng:9.3533, hours:''},
-    {cat:'restaurant', name:'Baacher Forellen', addr:'Brühlweg 9, 71384 Weinstadt-Baach', lat:48.7978, lng:9.3518, hours:''},
-    {cat:'restaurant', name:'Reichmanns Cucina', addr:'Marktstraße 36, 71384 Weinstadt-Baach', lat:48.7992, lng:9.3545, hours:''},
-    {cat:'restaurant', name:'Kostbar Restaurant', addr:'Bruckwiesenstraße 1, 71384 Weinstadt-Großheppach', lat:48.8130, lng:9.3750, hours:''},
-    {cat:'restaurant', name:'Zum Gretle', addr:'Hindenburgstraße 33, 71384 Weinstadt-Strümpfelbach', lat:48.8145, lng:9.3878, hours:''},
-    // Shopping
-    {cat:'shopping', name:'Dorfladen Schnait', addr:'Silcherstraße 40, 71384 Weinstadt-Schnait', lat:48.8092, lng:9.3600, hours:'Mo-Fr 07:00-12:30 / 16:30-18:30, Sa 07:00-12:30'},
-    {cat:'shopping', name:'Rewe Beutelsbach', addr:'Daimlerstraße 9, 71384 Weinstadt-Beutelsbach', lat:48.8115, lng:9.3720, hours:'Mo-Sa 07:00-22:00'},
-    {cat:'shopping', name:'Edeka Großheppach', addr:'Benzstraße 9, 71384 Weinstadt-Beutelsbach', lat:48.8140, lng:9.3755, hours:'Mo-Sa 08:00-21:00'},
-    {cat:'shopping', name:'Lidl Endersbach', addr:'Großheppacher Straße 70, 71384 Weinstadt-Endersbach', lat:48.8175, lng:9.3700, hours:'Mo-Sa 07:00-21:00'},
-    {cat:'shopping', name:'Aldi Endersbach', addr:'Großheppacher Straße 60/1, 71384 Weinstadt', lat:48.8178, lng:9.3693, hours:'Mo-Sa 07:00-21:00'},
-];
-
-const CAT_CONFIG = {
-    home:       {label: 'Unterkunft', color: '#1a1a2e', emoji: '🏠'},
-    parking:    {label: 'Parkplätze', color: '#1976d2', emoji: '🅿️'},
-    restaurant: {label: 'Restaurants', color: '#e65100', emoji: '🍽️'},
-    shopping:   {label: 'Einkaufen',  color: '#2e7d32', emoji: '🛒'},
-};
-
-// ===== Map Init =====
-const map = L.map('map').setView([48.8085, 9.3630], 14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap',
-    maxZoom: 19
-}).addTo(map);
-
-let activeFilters = new Set(Object.keys(CAT_CONFIG));
-let markers = [];
-
-function makeIcon(color, emoji) {
-    return L.divIcon({
-        className: '',
-        html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${emoji}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -18]
-    });
-}
-
-function navUrl(lat, lng, name) {
-    // Opens in Google Maps or native maps on mobile
-    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=&travelmode=driving`;
-}
-
-function renderMarkers() {
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-    POI.forEach(p => {
-        if (!activeFilters.has(p.cat)) return;
-        const cfg = CAT_CONFIG[p.cat];
-        const m = L.marker([p.lat, p.lng], {icon: makeIcon(cfg.color, cfg.emoji)}).addTo(map);
-        let popup = `<div class="popup-title">${p.name}</div><div class="popup-addr">${p.addr}</div>`;
-        if (p.hours) popup += `<div class="popup-hours">${p.hours}</div>`;
-        popup += `<a class="popup-nav" href="${navUrl(p.lat, p.lng, p.name)}" target="_blank">Navigation starten</a>`;
-        m.bindPopup(popup);
-        markers.push(m);
-    });
-}
-
-function renderFilters() {
-    const el = document.getElementById('map-filters');
-    el.innerHTML = Object.entries(CAT_CONFIG).map(([key, cfg]) =>
-        `<button class="mf-btn${activeFilters.has(key) ? ' active' : ''}" onclick="toggleFilter('${key}', this)">${cfg.emoji} ${cfg.label}</button>`
-    ).join('');
-}
-
-function toggleFilter(cat, btn) {
-    if (activeFilters.has(cat)) activeFilters.delete(cat);
-    else activeFilters.add(cat);
-    btn.classList.toggle('active');
-    renderMarkers();
-}
-
-renderFilters();
-renderMarkers();
-
-// ===== Data =====
-function ld(k, fb) { try { return JSON.parse(localStorage.getItem('mh_'+k)) || fb; } catch { return fb; } }
-function sv(k, d) { localStorage.setItem('mh_'+k, JSON.stringify(d)); }
-
-// ===== Planner =====
-let days = ld('plan', []);
-function renderPlan() {
-    const c = document.getElementById('planner-days');
-    if (!days.length) { c.innerHTML = '<div class="empty"><div class="ei">📅</div><p>Noch keine Tage geplant.<br>Füge euren ersten Tag hinzu!</p></div>'; return; }
-    c.innerHTML = days.map((d,di) => `
-        <div class="day-card"><div class="day-hdr" onclick="togD(${di})"><span>${esc(d.label)}</span><span><span class="dd">${d.items.filter(i=>i.done).length}/${d.items.length}</span> <button class="dbtn" onclick="event.stopPropagation();delD(${di})">✕</button></span></div>
-        <div class="day-body${d.open?' open':''}">
-        ${d.items.map((it,ii) => `<div class="pi"><input type="checkbox" ${it.done?'checked':''} onchange="togI(${di},${ii})"><span class="pt${it.done?' done':''}">${esc(it.text)}</span><button class="dbtn" onclick="delI(${di},${ii})">✕</button></div>`).join('')}
-        <div class="add-row"><input type="text" placeholder="Aktivität..." id="pi-${di}" onkeydown="if(event.key==='Enter')addI(${di})"><button onclick="addI(${di})">+</button></div>
-        </div></div>`).join('');
-}
-function addDay() { days.push({label:'Tag '+(days.length+1), items:[], open:true}); days.forEach((d,i)=>{if(i<days.length-1)d.open=false;}); sv('plan',days); renderPlan(); }
-function delD(i) { if(confirm('Tag löschen?')){days.splice(i,1);sv('plan',days);renderPlan();} }
-function togD(i) { days[i].open=!days[i].open; sv('plan',days); renderPlan(); }
-function addI(di) { const inp=document.getElementById('pi-'+di); const t=inp.value.trim(); if(!t)return; days[di].items.push({text:t,done:false}); sv('plan',days); renderPlan(); setTimeout(()=>{const n=document.getElementById('pi-'+di);if(n)n.focus();},50); }
-function togI(di,ii) { days[di].items[ii].done=!days[di].items[ii].done; sv('plan',days); renderPlan(); }
-function delI(di,ii) { days[di].items.splice(ii,1); sv('plan',days); renderPlan(); }
-
-// ===== Journal =====
-let jEntries = ld('journal', []);
-let pendingPhotos = [];
-document.getElementById('journal-photo').addEventListener('change', function(e) {
-    const pv = document.getElementById('photo-preview'); pendingPhotos=[]; pv.innerHTML='';
-    Array.from(e.target.files).forEach(f => {
-        const r=new FileReader(); r.onload=ev=>{pendingPhotos.push(ev.target.result); const img=document.createElement('img'); img.src=ev.target.result; img.style.cssText='width:40px;height:40px;object-fit:cover;border-radius:6px;'; pv.appendChild(img);}; r.readAsDataURL(f);
-    });
-});
-function addJournalEntry() {
-    const t=document.getElementById('journal-input').value.trim(); if(!t&&!pendingPhotos.length)return;
-    jEntries.unshift({date:new Date().toLocaleString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}),text:t,photos:pendingPhotos.slice(0,5)});
-    sv('journal',jEntries); document.getElementById('journal-input').value=''; document.getElementById('photo-preview').innerHTML=''; pendingPhotos=[]; renderJournal();
-}
-function delJE(i) { if(confirm('Eintrag löschen?')){jEntries.splice(i,1);sv('journal',jEntries);renderJournal();} }
-function renderJournal() {
-    const c=document.getElementById('journal-entries');
-    if(!jEntries.length){c.innerHTML='<div class="empty"><div class="ei">📝</div><p>Noch keine Einträge.<br>Haltet eure Erlebnisse fest!</p></div>';return;}
-    c.innerHTML=jEntries.map((e,i)=>`<div class="je"><div style="display:flex;justify-content:space-between"><div class="je-date">${esc(e.date)}</div><button class="dbtn" onclick="delJE(${i})">✕</button></div>${e.text?'<div class="je-text">'+esc(e.text)+'</div>':''}${e.photos&&e.photos.length?'<div class="je-photos">'+e.photos.map(p=>'<img src="'+p+'">').join('')+'</div>':''}</div>`).join('');
-}
-
-function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-
-renderPlan();
-renderJournal();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
